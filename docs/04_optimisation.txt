@@ -1,0 +1,41 @@
+Optimisation de la repartition (script : scripts/optimisation_2030.py ; solveur : HiGHS via scipy.optimize.linprog)
+
+Deux problemes, horizon 2030-2031, 45 anciennes provinces, stock 2024-2025.
+
+1. Redeploiement des enseignants (programmation lineaire, probleme de transport)
+   excedent(i) = max(0, enseignants en poste - necessaires en 2030) ; deficit(j) = max(0, necessaires - en poste).
+   x(i, j) = enseignants deplaces de i vers j. On maximise le nombre d'enseignants deplaces, puis on minimise la distance
+   totale (distances a vol d'oiseau entre centroides des provinces, calcules sur les contours COD-AB).
+   Verifie : solution entiere, flot maximal = min(excedent, deficit), contraintes respectees. Un rayon de 300 km ne change rien.
+   Fichiers : optimisation_enseignants_resume.csv (18 cas), _flux.csv, _provinces.csv.
+   Resultats (norme 40 eleves/enseignant, aucun rayon) :
+     statu_quo         manque 3 721, excedent 5 745 -> 3 721 deplaces, 0 a recruter (distance moyenne 75 km)
+     retour_2020_2021  manque 13 157, excedent 2 318 -> 2 318 deplaces (18 %), 10 839 a recruter (76 km)
+     acces_universel   manque 29 056, excedent 2 501 -> 2 501 deplaces (9 %), 26 555 a recruter
+   Tres sensible a la norme : a 45 eleves/enseignant, le scenario retour_2020_2021 est entierement couvert par
+   redeploiement (5 602 deplaces, 0 a recruter).
+
+2. Priorisation des salles a construire (allocation d'un budget exprime en NOMBRE de salles)
+   deficit(j) = max(0, ceil(eleves 2030 / norme) - salles 2024-2025). Trois regles :
+     equite         chaque salle va a la province la plus chargee (minimise le maximum d'eleves par salle ;
+                    optimalite verifiee par recherche dichotomique)
+     tension        provinces servies par indice de tension decroissant
+     proportionnel  au prorata des deficits
+   Fichiers : optimisation_salles_strategies.csv (108 cas : 3 scenarios x 3 normes x 4 budgets x 3 regles),
+   optimisation_salles_allocation_reference.csv (allocation province par province, retour_2020_2021, 50 eleves/salle, budget 50 %).
+   Norme de reference : 50 eleves par salle (standard du primaire cite par la JICA en 2009 ; peut avoir evolue). "Surcharge" = au-dela de 60
+   par salle (20 % au-dessus du standard). Les normes 40 et 45 sont des variantes (108 cas dans optimisation_salles_strategies.csv).
+   Resultats (retour_2020_2021, 50 eleves/salle, budget = 50 % du besoin = 8 724 salles) :
+     equite          maximum 57,3 eleves/salle ; 40 provinces au-dessus de 50 ; 0 eleve au-dela de 60 par salle ; 53 % des salles en tension forte
+     proportionnel   maximum 80,0 ; 40 provinces au-dessus de 50 ; 89 723 eleves au-dela de 60 ; 40 % en tension forte
+     tension         maximum 125,0 ; 23 provinces au-dessus de 50 ; 104 320 eleves au-dela de 60 ; 80 % en tension forte
+
+   Lecture : la regle "equite" evite les classes tres chargees (maximum 57) mais laisse 40 provinces un peu au-dessus du standard ;
+   la regle "tension" ramene 22 provinces au standard et oriente 80 % des salles vers les provinces tendues, mais laisse des classes
+   tres chargees ailleurs (jusqu'a 125 eleves par salle). Aucun des indicateurs ne mesure l'acces des enfants non scolarises :
+   l'arbitrage entre les deux regles est un choix politique.
+
+Limites : cout d'une salle ESTIME (parametres_cout_salle.csv : 10 / 15,7 / 33 millions de FCFA, ordres de grandeur, pas de devis ni de cout par province) ; securite et
+acceptabilite des affectations non modelises ; distances a vol d'oiseau ; stock inchange depuis 2024-2025 (pas d'attrition,
+pas de remplacement des salles precaires) ; la somme des deficits provinciaux ignore les compensations entre provinces pour les salles.
+La page HTML (05_interpretation) reproduit les resultats de la regle d'allocation en JavaScript, verifies sur les 108 cas (ecart nul).

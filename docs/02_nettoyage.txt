@@ -1,0 +1,94 @@
+﻿02_nettoyage - journal de nettoyage
+
+tableau_I1_brut.csv
+  Source   : annuaires statistiques de l'enseignement primaire DGESS/MEBAPLN, 2017-2018 a 2024-2025
+             (CNS521 a CNS526, CNS529, CNS530), tableau "Nombre d'ecoles, salles de classe, groupes
+             pedagogiques, maitres, eleves par statut" (I.1 ou II.1 selon l'annee), via le Data Pack.
+  Script   : scripts/extract_tableau_I1.py
+  Contenu  : 1 413 lignes = annee x (province | region | pays) x statut (Public / Prive / Total).
+  Colonnes : annee_scolaire ; region_ancienne (13 regions) ; niveau ; province ; statut ; nb_ecoles ;
+             nb_salles ; nb_groupes ; nb_maitres ; nb_eleves ; ratio_eleves_maitre ; source_fichier ; page_pdf
+
+Controles automatiques (tous reussis) : Public + Prive = Total ; somme des provinces = total region ;
+somme des regions = total pays (ecoles, salles de classe, eleves).
+
+ref_provinces.csv  et  tableau_I1_propre.csv   (script : scripts/harmoniser_provinces.py)
+  Harmonisation des provinces avec le COD-AB (adm2, colonnes *_old). Unite d'analyse = ancienne province (45).
+  - 45/45 provinces DGESS rattachees a un P-code ancien (BF46xx...), aucune sans correspondance.
+  - Alias DGESS -> COD-AB : LES BALE = Bale ; KOMONDJARI = KOMANDJARI.
+  - Renommees dans le COD-AB 2025 : Kossi->Kossin, Sanmatenga->Sandbondtenga, Oubritenga->Bassitenga, Les Bale->Bale.
+  - Scindees : Soum -> Djelgodji + Karo-Peli ; Tapoa -> Dyamongou + Gobnangou (plusieurs P-codes nouveaux,
+    une seule region nouvelle). Les donnees DGESS ne permettent pas de separer ces provinces.
+  - Les anciennes regions ne s'emboitent pas dans les nouvelles (ex. EST -> Sirba + Goulmou + Tapoa ;
+    BOUCLE DU MOUHOUN -> Bankui + Sourou) : toute agregation regionale doit choisir un decoupage et le dire.
+
+enseignants_IV1_propre.csv   (script : scripts/extract_enseignants_IV1.py)
+  Source   : tableau IV.1 "Repartition des enseignants par sexe, corps et fonction", 8 annuaires primaire.
+  Contenu  : 7 065 lignes = annee x (province | region | pays) x statut (Public/Prive/Total/Urbain/Rural) x sexe (F/H/T),
+             les statuts Urbain et Rural viennent des tableaux IV.1.4 et IV.1.5 (controle : urbain + rural = total),
+             deja relie aux P-codes (province_std, pcode_province_old, pcodes_province_new).
+  Colonnes : nb_enseignants (tous enseignants) ; tenant_classe ; directeur ; titulaire ; suppleant
+             (directeur+titulaire+suppleant = nb_enseignants) ; classe_simple / multigrade / double_flux.
+  Controles reussis : F+H=T ; somme des corps = total ; directeur+titulaire+suppleant = total ;
+             public+prive = total ; provinces -> regions -> pays.
+  Limites  : - Les colonnes "corps" changent entre annees (5 colonnes jusqu'en 2022-2023, 7 ensuite : P.C.E et P.E
+               apparaissent) : elles sont gardees en bloc (corps_valeurs) et ne sont pas comparables dans le temps.
+             - tenant_classe = enseignants qui tiennent une classe ; dans 484 groupes il differe de simples +
+               multigrades + double flux (ecart dans la source).
+             - nb_enseignants (tous) > nb_maitres du tableau I.1 (maitres charges de cours) : ne pas les melanger.
+
+salles_etat_propre.csv   (script : scripts/extract_salles_VI.py)
+  Source   : tableaux "caracteristiques et etat des locaux" des 8 annuaires primaire (numerotes VI.x ou VII.x
+             selon l'annee ; reperes par leur titre).
+  Contenu  : 1 389 lignes = annee x (province | region) x statut (Public/Prive/Total), colonnes prefixees :
+             annee_* (annee de mise en service), log_* (logements de maitre), surf_* (surface, eleves/classe),
+             murs_* (nature et etat des murs), toit_* (nature et etat des toitures). Relie aux P-codes.
+  Controles reussis (tolerance 15 salles / 2 %) : memes totaux de salles entre tableaux, = tableau I.1,
+             maitres des logements = maitres du tableau I.1, somme des provinces = total region.
+  Limites  : - surf_* : le tableau PRIVE est incomplet en 2023-2024 et 2024-2025 (23 provinces / 7 regions
+               absentes : pages manquantes dans le PDF du Data Pack). Public et Total sont complets.
+             - toit_sans_toit n'existe pas en 2017-2018 et 2018-2019 (colonne vide).
+             - 148 groupes montrent un petit ecart (<= 15 salles, <= 2 %) entre deux tableaux de la source.
+             - Pas de ligne "pays" : on la recalcule en sommant les regions.
+
+population_province_age.csv   (script : scripts/extract_population_provinces.py)
+  Projections INSD (RGPH 2019, vol. 4, chap. 3) par ancienne province, 2020-2035, sexe H/F/E, groupes d'ages
+  (dont 6-11 ans et total). 45 provinces, 48 909 valeurs. Les groupes d'ages se chevauchent (1-4 / 3-5 ; 5-9 / 6-11).
+  Limite (INSD, p. 199) : meme structure par age et par sexe pour toutes les provinces d'une region.
+  Verification : le TBS 2024-2025 calcule avec ce denominateur = TBS publie par la DGESS (Est, Sahel, Nord, Centre).
+
+pdi_province_date.csv   (script : scripts/extract_pdi_conasur.py)
+  Personnes deplacees internes HEBERGEES (destination) par ancienne province, releves mensuels CONASUR
+  de janvier 2019 a mars 2023 (46 dates). Total national au 31/12/2022 = 1 882 391 = chiffre publie par le CONASUR.
+  - hommes / femmes / enfants ne sont renseignes qu'a partir de fevrier 2022.
+  - Une province absente d'un releve n'heberge aucun PDI a cette date (traite comme 0 dans le panel).
+  - Pas de releve apres mars 2023 (2,06 M) : 2023-2024 et 2024-2025 n'ont pas de valeur annuelle.
+  - Les PDI sont comptes la ou ils sont heberges, pas la ou ils ont fui : Soum, Sanmatenga, Yatenga hebergent beaucoup.
+  - Les autres fichiers du dossier PDI_CONASUR (releves mensuels 2020-2022 par commune) ne sont pas utilises :
+    idps4 les regroupe deja.
+
+eleves_milieu_propre.csv   (script : scripts/extract_eleves_milieu.py)
+  Source   : tableau "Nombre d'eleves total, filles, % de filles, urbain et rural (public + prive)" (I.2 ou II.2 selon l'annee), 8 annuaires.
+  Contenu  : 463 lignes = annee x (province | region | pays) ; urbain, rural et ensemble : total, filles, % de filles.
+  Controles reussis : urbain + rural = ensemble (eleves et filles) ; provinces -> regions -> pays ; ensemble = eleves du tableau I.1.
+  Cas particuliers : en 2021-2022 (Loroum) et 2022-2023 (Loroum, Banwa) la source ne renseigne qu'un seul milieu ; on lit lequel
+  d'apres les enseignants de la meme province (un seul milieu a des enseignants) : Loroum = urbain, Banwa 2022-2023 = rural.
+  Limite   : les annuaires ne separent PAS les salles de classe entre urbain et rural.
+
+equipement_ecoles_propre.csv   (script : scripts/extract_equipement_V4.py)
+  Source   : tableau "Equipement des ecoles" (V.4 ou VI.4 selon l'annee), 8 annuaires primaire, public / prive / total.
+  Contenu  : 1 383 lignes = annee x (province | region) x statut ; equip_ecoles (ecoles fonctionnelles) et nombre d'ecoles avec eau potable,
+             electricite, latrines, jardins, cantines, terrain de sport, cloture. Pas de ligne "pays" : on la recalcule en sommant les regions.
+  Controles reussis : ecoles fonctionnelles = nombre d'ecoles du tableau I.1 (ecart nul) ; somme des provinces = total region ; public + prive = total ;
+             aucun equipement au-dessus du nombre d'ecoles. 2022-2023 : Komandjari absent (ecoles fermees).
+Points d'attention
+  - 13 anciennes regions dans les annuaires ; le rattachement aux P-codes COD-AB (45 provinces) est fait par harmoniser_provinces.py (voir plus haut).
+  - Noms de provinces ecrits de plusieurs facons dans les annuaires (KOMONDJARI / KOMANDJARI) : harmonises par harmoniser_provinces.py.
+  - 2022-2023 : la province du Komandjari n'apparait pas dans ce tableau (44 provinces au lieu de 45) ;
+    les autres tableaux de l'annuaire la montrent avec 0 eleve. A traiter comme "ecoles fermees", pas comme "donnee manquante".
+  - Les annuaires 2015-2016 et 2016-2017 ne sont pas dans le Data Pack : serie a partir de 2017-2018.
+  - nb_maitres = maitres charges de cours, pas l'ensemble des enseignants (voir tableaux IV.1 des annuaires).
+  - Le tableau "43 communes prioritaires" (I.1 de 2017 a 2021) est volontairement exclu.
+
+
+

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Où implanter salles et enseignants ? Tableau de bord, école primaire, Burkina Faso</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  /* couleurs de la marque EduDistrib AI (vert et or du logo) ; bleu en 3e série. Validées : tous couples, deux thèmes */
+  --s1: #0a7d32; --s2: #d79c0c; --s3: #2a78d6; --neutral: #b5b3ab;
+  --seq1: #c9e7d2; --seq2: #9bd1ad; --seq3: #58b077; --seq4: #1f8a4a; --seq5: #0b5a2c;
+  --track: #c9e7d2; --accent-btn: #0a7d32; --on-fill: #ffffff; --hover: rgba(11,11,11,0.05);
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --s1: #1fa05a; --s2: #b87800; --s3: #3987e5; --neutral: #5c5b57;
+    --seq1: #0f4a28; --seq2: #17703a; --seq3: #2e9a58; --seq4: #78c690; --seq5: #c4e9d0;
+    --track: #0f4a28; --accent-btn: #15703a; --hover: rgba(255,255,255,0.06);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19;
+  --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --s1: #1fa05a; --s2: #b87800; --s3: #3987e5; --neutral: #5c5b57;
+  --seq1: #0f4a28; --seq2: #17703a; --seq3: #2e9a58; --seq4: #78c690; --seq5: #c4e9d0;
+  --track: #0f4a28; --accent-btn: #15703a; --hover: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; }
+html { background: var(--page); }
+body { margin: 0; font-family: var(--font); color: var(--ink); background: var(--page); line-height: 1.45; font-size: 15px; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 24px 20px 56px; }
+h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.01em; }
+h2 { font-size: 16px; margin: 0 0 2px; font-weight: 650; }
+.sub { color: var(--ink2); margin: 0; max-width: 78ch; }
+.top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 3px solid var(--s2); }
+.brand { display: flex; gap: 18px; align-items: center; min-width: 0; }
+.logo { flex: none; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 4px 8px; }
+.logo img { display: block; height: 98px; width: auto; }
+@media (max-width: 700px) { .brand { flex-direction: column; align-items: flex-start; } }
+.theme { border: 1px solid var(--border); background: var(--surface); color: var(--ink2); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.theme:hover { background: var(--hover); }
+.filters { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; position: sticky; top: 8px; z-index: 5; }
+.filters label, .filters .lab { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+select { font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 6px 28px 6px 10px; }
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; }
+.seg button { font: inherit; font-size: 14px; background: var(--surface); color: var(--ink2); border: 0; padding: 6px 12px; cursor: pointer; border-right: 1px solid var(--axis); }
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--hover); }
+.seg button[aria-checked="true"] { background: var(--accent-btn); color: #fff; }
+.hint { font-size: 12px; color: var(--muted); max-width: 40ch; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+.card p.note { color: var(--ink2); font-size: 13px; margin: 2px 0 12px; }
+.grid { display: grid; gap: 16px; margin-bottom: 16px; align-items: start; }
+.two { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+.two-b { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+.kpis { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.tile .lab { font-size: 13px; color: var(--ink2); }
+.tile .val { font-size: 30px; font-weight: 650; line-height: 1.15; margin: 2px 0; }
+.tile.hero .val { font-size: 56px; letter-spacing: -0.02em; }
+.tile .det { font-size: 12.5px; color: var(--muted); }
+svg { display: block; width: 100%; height: auto; }
+text { font-family: var(--font); }
+.axis-t { fill: var(--muted); font-size: 11px; }
+.ttl { fill: var(--ink2); font-size: 11.5px; }
+.gridl { stroke: var(--grid); stroke-width: 1; }
+.axisl { stroke: var(--axis); stroke-width: 1; }
+#carte .prov path { fill: var(--fill, var(--seq1)); stroke: var(--surface); stroke-width: 1; cursor: pointer; transition: opacity .12s; }
+#carte .prov.hov path { stroke: var(--ink); stroke-width: 1.6; }
+#carte .prov.sel path { stroke: var(--ink); stroke-width: 2.6; }
+#etiquettes text { font-size: 13px; fill: var(--ink); text-anchor: middle; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink2); margin-top: 10px; align-items: center; }
+.legend .it { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 22px; height: 10px; border-radius: 2px; display: inline-block; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.key { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
+.ramp { display: flex; gap: 2px; margin-top: 10px; }
+.ramp div { flex: 1; font-size: 11.5px; color: var(--ink2); }
+.ramp i { display: block; height: 10px; border-radius: 2px; margin-bottom: 4px; }
+.map-note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.rows { display: flex; flex-direction: column; gap: 2px; }
+.row { display: grid; grid-template-columns: 26px minmax(86px, 128px) 1fr 44px; align-items: center; gap: 8px; text-align: left; font: inherit; font-size: 13.5px; color: var(--ink); background: transparent; border: 0; border-radius: 6px; padding: 4px 6px; cursor: pointer; }
+.row:hover, .row.hov { background: var(--hover); }
+.row.sel { background: var(--hover); outline: 1.5px solid var(--ink2); }
+.row .rk { color: var(--muted); font-size: 12px; text-align: right; }
+.row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .bar { height: 10px; position: relative; }
+.row .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--s1); border-radius: 0 4px 4px 0; }
+.row .vv { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink2); font-size: 13px; }
+.more { margin-top: 8px; font: inherit; font-size: 13px; color: var(--ink2); background: transparent; border: 1px solid var(--axis); border-radius: 8px; padding: 5px 12px; cursor: pointer; }
+.more:hover { background: var(--hover); }
+.det-h { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.chip { font-size: 12px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--axis); color: var(--ink2); white-space: nowrap; }
+.meter { display: grid; grid-template-columns: 188px 1fr 34px; gap: 8px; align-items: center; font-size: 13px; margin: 5px 0; }
+.meter .tr { height: 8px; background: var(--track); border-radius: 4px; position: relative; opacity: .55; }
+.meter .tr i { position: absolute; inset: 0 auto 0 0; background: var(--s1); border-radius: 4px; }
+.meter .tr.on { opacity: 1; background: color-mix(in srgb, var(--s1) 22%, var(--surface)); }
+.meter .sc { text-align: right; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin: 14px 0 0; }
+.facts div { font-size: 13px; color: var(--ink2); }
+.facts b { display: block; font-size: 18px; color: var(--ink); font-weight: 650; }
+.hr { border: 0; border-top: 1px solid var(--grid); margin: 14px 0; }
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 16px rgba(0,0,0,.14); max-width: 280px; display: none; }
+.tip .v { font-size: 15px; font-weight: 650; }
+.tip .l { color: var(--ink2); }
+.tip .r { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
+th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3), th:nth-child(4), td:nth-child(4) { text-align: left; }
+th { color: var(--ink2); font-weight: 600; cursor: pointer; position: sticky; top: 0; background: var(--surface); }
+th:hover { color: var(--ink); }
+td { font-variant-numeric: tabular-nums; }
+#tbl2 th, #tbl2 td { text-align: right; }
+table.cmp th, table.cmp td, table.cmp th:nth-child(n), table.cmp td:nth-child(n) { text-align: right; }
+table.cmp th:first-child, table.cmp td:first-child { text-align: left; }
+table.cmp th { position: static; cursor: default; white-space: normal; vertical-align: bottom; line-height: 1.25; }
+table.cmp th, table.cmp td { padding: 6px 6px; }
+table.cmp tr.cur td { font-weight: 650; background: var(--hover); }
+table.cmp tr.cur td:first-child { box-shadow: inset 3px 0 0 var(--s1); }
+.flows { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; font-size: 13.5px; }
+.flows .fl { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: baseline; padding: 3px 0; border-bottom: 1px solid var(--grid); }
+.flows .fl .km { color: var(--muted); font-size: 12.5px; min-width: 52px; text-align: right; }
+.flows .fl b { font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 190px; accent-color: var(--s1); vertical-align: middle; }
+.ex { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+.tbl { overflow-x: auto; max-height: 520px; overflow-y: auto; border: 1px solid var(--grid); border-radius: 8px; }
+details { border-top: 1px solid var(--grid); padding: 10px 0; }
+details:first-of-type { border-top: 0; }
+summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+details p, details li { color: var(--ink2); font-size: 13.5px; max-width: 95ch; }
+details ul { margin: 6px 0 0; padding-left: 20px; }
+.btn { font: inherit; font-size: 13px; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.btn:hover { background: var(--hover); }
+footer { color: var(--muted); font-size: 12.5px; margin-top: 24px; max-width: 100ch; }
+:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.dim { opacity: .55; transition: opacity .15s; }
+@media (max-width: 980px) {
+  .two, .two-b, .kpis { grid-template-columns: 1fr; }
+  .tile.hero .val { font-size: 46px; }
+  .filters { position: static; }
+}
+@media (forced-colors: active) { #carte .prov path { stroke: CanvasText; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="logo"><!--__LOGO__--></div>
+      <div>
+        <h1>Où construire d'abord ? Salles de classe et enseignants à l'horizon 2030</h1>
+        <p class="sub">Défi 3 · Optimisation de la répartition des infrastructures et du personnel enseignant. École primaire, 45 provinces du Burkina Faso, année scolaire 2024-2025 et projection 2030. Data Challenge Burkina 2026, EduDistrib AI.</p>
+      </div>
+    </div>
+    <button class="theme" id="theme" type="button" aria-label="Changer de thème">Thème : auto</button>
+  </div>
+
+  <div class="filters" role="group" aria-label="Filtres (ils s'appliquent à toute la page)">
+    <div>
+      <span class="lab" id="lab-sc">Scénario de scolarisation en 2030</span>
+      <div class="seg" role="radiogroup" aria-labelledby="lab-sc" id="seg-sc"></div>
+    </div>
+    <div>
+      <label for="norm-s">Norme : élèves par salle</label>
+      <select id="norm-s"><option>40</option><option>45</option><option selected>50</option></select>
+    </div>
+    <div>
+      <label for="norm-e">Norme : élèves par enseignant</label>
+      <select id="norm-e"><option>40</option><option>45</option><option>50</option></select>
+    </div>
+    <div>
+      <label for="budget" id="budget-lab">Budget de construction</label>
+      <input type="range" id="budget" min="10" max="100" step="5" value="50" aria-describedby="budget-lab">
+    </div>
+    <div>
+      <label for="strat">Règle de répartition des salles</label>
+      <select id="strat">
+        <option value="equite">Équité (province la plus chargée d'abord)</option>
+        <option value="tension">Tension (indice le plus élevé d'abord)</option>
+        <option value="proportionnel">Proportionnelle au déficit</option>
+      </select>
+    </div>
+    <div>
+      <label for="cout">Coût d'une salle (estimation)</label>
+      <select id="cout"></select>
+    </div>
+    <div>
+      <label for="metrique">Carte colorée selon</label>
+      <select id="metrique"></select>
+    </div>
+    <div class="hint">50 élèves par salle : standard du primaire cité par la JICA en 2009 (à confirmer). 40 élèves par enseignant : hypothèse, aucune norme trouvée. Tout change avec elles.</div>
+  </div>
+
+  <section class="kpis" id="kpis" aria-label="Chiffres clés"></section>
+
+  <section class="grid two">
+    <article class="card">
+      <h2 id="carte-titre">Carte</h2>
+      <p class="note" id="carte-note"></p>
+      <!--__MAP__-->
+      <div class="ramp" id="ramp" aria-hidden="false"></div>
+      <div class="map-note">Cliquez une province pour voir son détail. Soum et Tapoa, scindées en deux provinces dans le nouveau découpage, restent regroupées car les données sont à l'échelle des 45 anciennes provinces.</div>
+    </article>
+    <article class="card">
+      <h2>Classement par indice de tension</h2>
+      <p class="note">0 à 100, 100 = situation la plus tendue des 45 provinces. Moyenne pondérée de cinq rangs (voir « Méthode »).</p>
+      <div class="rows" id="rows"></div>
+      <button class="more" id="more" type="button"></button>
+    </article>
+  </section>
+
+  <section class="grid two-b">
+    <article class="card" id="detail"></article>
+    <article class="card">
+      <h2>Tension et volume : deux questions différentes</h2>
+      <p class="note">L'indice dit où la situation est la plus grave ; le volume dit où il y a le plus de salles à construire. Une grande province peu tendue (Kadiogo) peut peser plus lourd qu'une petite province très tendue.</p>
+      <div id="scatter"></div>
+      <div class="legend" id="scatter-leg"></div>
+    </article>
+  </section>
+
+  <section class="grid two-b" id="plan">
+    <article class="card" id="plan-ens"></article>
+    <article class="card" id="plan-salles"></article>
+  </section>
+
+  <section class="card" style="margin-bottom:16px">
+    <h2>Combien d'élèves à scolariser d'ici 2030 ?</h2>
+    <p class="note">Effectifs observés de 2017-2018 à 2024-2025, puis trois scénarios. Ils diffèrent par le taux de scolarisation (élèves ÷ enfants de 6 à 11 ans), pas par la démographie : la population de 6 à 11 ans passe de 4,20 à 4,66 millions.</p>
+    <div class="legend" id="line-leg"></div>
+    <div id="line"></div>
+  </section>
+
+  <section class="card" style="margin-bottom:16px" id="fiab"></section>
+
+  <section class="card" style="margin-bottom:16px">
+    <div class="det-h">
+      <div><h2>Données du tableau de bord</h2><p class="note" style="margin-bottom:0">Les mêmes valeurs que la carte et les graphiques, en tableau. Cliquez un en-tête pour trier.</p></div>
+      <div><button class="btn" id="csv" type="button">Télécharger en CSV</button> <button class="btn" id="tbl-toggle" type="button" aria-expanded="false" aria-controls="tbl">Afficher le tableau</button></div>
+    </div>
+    <div class="tbl" id="tbl" hidden style="margin-top:12px"></div>
+    <p class="note" id="tbl2-t" hidden style="margin:14px 0 6px">Élèves scolarisés au niveau national (graphique « Combien d'élèves à scolariser d'ici 2030 ? »), avec les normes choisies ci-dessus.</p>
+    <div class="tbl" id="tbl2" hidden></div>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-bottom:8px">Méthode et limites</h2>
+    <details open><summary>Comment lire l'indice de tension</summary>
+      <p>Cinq composantes, chacune transformée en rang parmi les 45 provinces (0 = la moins tendue, 100 = la plus tendue) : élèves par salle de classe (25 %), élèves par enseignant (20 %), enfants de 6 à 11 ans non scolarisés, soit 1 − taux de scolarisation (25 %), état du bâti, moyenne des parts de salles en paille ou banco et de salles aux murs en mauvais état (15 %), déplacés internes hébergés pour 100 habitants (15 %). L'indice est la moyenne pondérée. Les provinces sont réparties en trois tiers de 15 : tension forte, moyenne, faible. Avec des poids égaux, ou sans les déplacés, le classement garde une corrélation de rang de 0,98 à 0,99 avec celui-ci ; en ne gardant que salles et enseignants elle tombe à 0,74.</p>
+    </details>
+    <details><summary>Comment la projection 2030 est calculée</summary>
+      <p>Taux de scolarisation = élèves ÷ population de 6 à 11 ans (projections de l'INSD). Celui de 2024-2025 retrouve exactement celui publié par la DGESS. Trois scénarios, par interpolation linéaire jusqu'en 2030-2031 : <b>statu quo</b> (taux de 2024-2025 maintenu, effet démographique seul), <b>retour au niveau 2020-2021</b> (avant l'effondrement lié à l'insécurité), <b>accès universel</b> (100 %, les provinces déjà au-dessus gardent leur niveau). Besoin = élèves ÷ norme, moins les salles ou enseignants de 2024-2025 (stock inchangé, sans attrition). Le total national additionne les déficits des provinces : un excédent dans une province ne compense pas un déficit ailleurs.</p>
+    </details>
+    <details><summary>Comment fonctionne l'optimisation (plan d'action)</summary>
+      <p><b>Enseignants.</b> Pour chaque province, l'excédent est le nombre d'enseignants en poste au-delà de ce que la norme exige en 2030, et le déficit est ce qui manque. Un programme linéaire (problème de transport, solveur HiGHS) déplace d'abord le plus d'enseignants possible des provinces en excédent vers celles en déficit, puis, parmi ces solutions, choisit celle qui minimise la distance totale. La solution est entière (aucun arrondi). Les enseignants ainsi redéployés n'ont plus à être recrutés. Les distances sont à vol d'oiseau entre centres de provinces.</p>
+      <p><b>Salles.</b> Le budget est un nombre de salles à répartir entre les provinces, sans dépasser le déficit de chacune. Règle « équité » : on ajoute chaque salle à la province qui a le plus d'élèves par salle ; elle minimise le maximum d'élèves par salle, ce qui a été vérifié par une recherche dichotomique. Règle « tension » : on sert les provinces dans l'ordre de l'indice de tension. Règle « proportionnelle » : au prorata des déficits. Les résultats de la page sont identiques à ceux du script Python sur les 108 cas testés.</p>
+      <p>Ce que l'optimisation ne dit pas : le coût réel d'une salle (variable selon la province et l'insécurité), les contraintes de sécurité pour affecter des enseignants, ni l'effet d'une règle sur l'accès des enfants non scolarisés. La règle « équité » ne mesure que la surcharge des classes ; la règle « tension » vise aussi les provinces où les écoles sont fermées. Le choix entre les deux est une décision politique, que ce tableau de bord éclaire sans la prendre.</p>
+    </details>
+    <details><summary>D'où vient le coût d'une salle de classe</summary>
+      <p>Nous n'avons pas trouvé de coût officiel par salle. Trois repères, que vous choisissez dans le filtre « Coût d'une salle » : <b>15,7 millions de FCFA</b> (valeur centrale) = 47 039 700 FCFA par complexe scolaire de 3 salles, un bureau, un magasin et 2 blocs de latrines, divisé par 3 salles ; chiffre donné par le ministre Boubacar Savadogo devant l'Assemblée législative de transition (LibreInfo, 22 novembre 2024) pour 90 complexes réalisés en 2024. <b>10 millions</b> (bas) : exemple ivoirien de 3 salles avec bureau et latrines pour 30 millions, hors Burkina. <b>33 millions</b> (haut) : marché de 42 salles préfabriquées avec latrines et équipement, 2 326 972 dollars soit environ 33 millions par salle à 590 FCFA le dollar (hypothèse). Le coût réel varie selon la région, le matériau et la sécurité ; ce sont des ordres de grandeur, pas un devis. Détail et liens : fichier <code>parametres_cout_salle.csv</code>.</p>
+    </details>
+    <details><summary>Limites à garder en tête</summary>
+      <ul>
+        <li><b>Les normes</b> : 50 élèves par salle est le standard du primaire cité par la JICA en 2009 (rapport du 4e projet de construction d'écoles primaires, p. 40) ; il peut avoir évolué depuis et reste à confirmer auprès du ministère. 40 élèves par enseignant est une hypothèse de travail (aucune norme trouvée). Avec 40 élèves par salle au lieu de 50, le déficit de salles en statu quo passe de 7 988 à 25 017.</li>
+        <li><b>Provinces touchées par l'insécurité</b> : le taux de scolarisation est très bas (Tapoa 9 %, Yagha 12 %, Komandjari 13 %, Soum 16 %) parce que des écoles sont fermées. Leur nombre d'élèves par salle ne mesure que les écoles ouvertes. Les scénarios de reprise sont des besoins potentiels, pas des prévisions : ils supposent le retour de la sécurité.</li>
+        <li><b>Population</b> : les projections provinciales de l'INSD supposent la même structure par âge pour toutes les provinces d'une même région et ne tiennent pas compte des déplacements.</li>
+        <li><b>Déplacés internes</b> : comptés là où ils sont hébergés. Dernier relevé du CONASUR au 31 mars 2023 (2,06 millions) ; rien après. Le ratio « pour 100 habitants » est indicatif.</li>
+        <li><b>Données</b> : le détail du tableau privé des surfaces de salles manque pour 2023-2024 et 2024-2025 (non utilisé ici). La province du Komandjari est absente des annuaires en 2022-2023 (écoles fermées).</li>
+        <li><b>Le scénario n'est pas une prévision</b> : la série de scolarisation 2021-2023 est trop perturbée par la crise pour être extrapolée. Un test de modèles statistiques (voir la section « Un modèle statistique ferait-il mieux ? ») ne bat pas l'hypothèse démographique de façon constante ; la fiabilité de la projection varie beaucoup d'une province à l'autre, avec 10 provinces très volatiles.</li>
+      </ul>
+    </details>
+    <details><summary>Sources</summary>
+      <p>Annuaires statistiques de l'enseignement primaire 2017-2018 à 2024-2025 (DGESS, ministère de l'Éducation nationale) ; projections démographiques 2020-2035, RGPH 2019, volume 4 (INSD) ; situation des personnes déplacées internes, relevés de janvier 2019 à mars 2023 (CONASUR, via HDX) ; limites administratives COD-AB (IGB, OCHA, via HDX). Données utilisées uniquement pour le concours.</p>
+    </details>
+  </section>
+  <footer>Tableau de bord produit par l'équipe EduDistrib AI pour le Data Challenge Burkina, édition Éducation 2026 (Ministère de la Transition digitale, des Postes et des Communications électroniques, Africa Data Entry).</footer>
+</div>
+<div class="tip" id="tip" role="status"></div>
+
+<script>
+/*__DATA__*/
+/*__CALC__*/
+(function () {
+"use strict";
+const P = DATA.provinces;
+const byId = Object.fromEntries(P.map(p => [p.id, p]));
+const NS = "http://www.w3.org/2000/svg";
+const state = { cout: "central", sc: "retour", normS: 50, normE: 40, budgetPct: 50, strat: "equite", metric: "indice", sel: P.find(p => p.rang === 1).id, hov: null, all: false, sort: { k: "rang", dir: 1 }, theme: "auto" };
+const nf = new Intl.NumberFormat("fr-FR");
+const fmt = n => nf.format(Math.round(n));
+const fmt1 = n => n.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const pct = (x, d) => (x * 100).toLocaleString("fr-FR", { maximumFractionDigits: d == null ? 0 : d }) + " %";
+const mio = n => (n / 1e6).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " M";
+
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in (attrs || {})) { if (k === "class") e.className = attrs[k]; else if (k === "text") e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  for (const c of kids) if (c != null) e.append(c.nodeType ? c : document.createTextNode(c));
+  return e;
+}
+function s(tag, attrs, ...kids) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in (attrs || {})) { if (k === "text") e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  for (const c of kids) if (c) e.append(c);
+  return e;
+}
+const $ = id => document.getElementById(id);
+
+// ---------- calculs dependants des filtres ----------
+let B = {};      // besoins 2030 par province
+let NAT = null;  // totaux nationaux
+let ALLOC = {}, STRATS = {}, BUDGET = { total: 0, salles: 0 };   // allocation du budget de salles
+// coût estimé d'un nombre de salles, en milliards de FCFA (le coût unitaire vient de parametres_cout_salle.csv)
+const coutUnit = () => DATA.cout.find(c => c.id === state.cout).valeur;                 // millions de FCFA par salle
+const milliards = n => (n * coutUnit() / 1000).toLocaleString("fr-FR", { maximumFractionDigits: n * coutUnit() / 1000 < 10 ? 1 : 0 });
+function recompute() {
+  B = {};
+  for (const p of P) B[p.id] = besoins(p, state.sc, state.normS, state.normE, HORIZON);
+  NAT = totalNational(P, state.sc, state.normS, state.normE, HORIZON);
+  recomputeAlloc();
+}
+function recomputeAlloc() {
+  BUDGET.total = budgetTotal(P, state.sc, state.normS);
+  BUDGET.salles = Math.round(BUDGET.total * state.budgetPct / 100);
+  STRATS = {};
+  for (const k of ["equite", "tension", "proportionnel"]) {
+    const y = allouer(P, state.sc, state.normS, BUDGET.salles, k);
+    STRATS[k] = { y, m: metriquesAlloc(P, state.sc, state.normS, y) };
+  }
+  ALLOC = STRATS[state.strat].y;
+  $("budget-lab").textContent = "Budget de construction : " + state.budgetPct + " % du besoin (" + fmt(BUDGET.salles) + " salles)";
+}
+const METRICS = {
+  indice: { label: "Indice de tension", get: p => p.indice, fmt: fmt1, note: "De 0 (la moins tendue) à 100 (la plus tendue)." },
+  salles: { label: "Salles à construire d'ici 2030", get: p => B[p.id].salles, fmt: fmt, note: "En nombre de salles, pas en proportion : les grandes provinces pèsent plus." },
+  ens: { label: "Enseignants à recruter d'ici 2030", get: p => B[p.id].ens, fmt: fmt, note: "En nombre d'enseignants, pas en proportion." },
+  tbs: { label: "Taux de scolarisation 2024-2025", get: p => p.tbs24, fmt: v => pct(v), note: "Élèves ÷ enfants de 6 à 11 ans. Il peut dépasser 100 % (élèves hors âge ou venus d'ailleurs)." },
+  pdi: { label: "Déplacés hébergés pour 100 habitants (mars 2023)", get: p => p.pdi100, fmt: fmt1, note: "Déplacés internes accueillis dans la province, rapportés à sa population." },
+  dist: { label: "Distance théorique à l'école la plus proche, en km (2024-2025)", get: p => p.acces.dist, fmt: fmt1, note: "0,5 × racine(superficie ÷ nombre d'écoles primaires en activité) : distance moyenne si les écoles étaient réparties régulièrement. Ordre de grandeur, pas la distance réelle de chaque village." },
+  rural: { label: "Part des élèves en milieu rural (2024-2025)", get: p => p.milieu.partRurale, fmt: v => pct(v), note: "Élèves scolarisés en milieu rural ÷ tous les élèves de la province." },
+  ecartRural: { label: "Élèves par enseignant : rural ÷ urbain (2024-2025)", get: p => p.milieu.rapport == null ? 1 : p.milieu.rapport, fmt: v => v.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), note: "Au-dessus de 1, le milieu rural a plus d'élèves par enseignant que le milieu urbain de la même province (il est moins bien doté)." },
+  alloc: { label: "Salles allouées par le budget choisi", get: p => ALLOC[p.id], fmt: fmt, note: "Nombre de salles que la règle de répartition choisie attribue à la province, avec le budget réglé en haut de page." },
+};
+const niveauTxt = { forte: "tension forte", moyenne: "tension moyenne", faible: "tension faible" };
+
+// ---------- infobulle ----------
+const tip = $("tip");
+function showTip(x, y, lines) {
+  tip.replaceChildren();
+  lines.forEach((l, i) => {
+    const row = h("div", { class: i === 0 ? "v" : "l" });
+    if (l.key) row.append(h("span", { class: l.dot ? "dot" : "key", style: (l.dot ? "background:" : "border-color:") + l.key }), " ");
+    row.append(l.t);
+    if (i > 0) row.classList.add("r");
+    tip.append(row);
+  });
+  tip.style.display = "block";
+  const w = tip.offsetWidth, hh = tip.offsetHeight;
+  let lx = x + 14, ly = y + 14;
+  if (lx + w > innerWidth - 8) lx = x - w - 14;
+  if (ly + hh > innerHeight - 8) ly = y - hh - 14;
+  tip.style.left = Math.max(8, lx) + "px"; tip.style.top = Math.max(8, ly) + "px";
+}
+const hideTip = () => { tip.style.display = "none"; };
+function provTip(evt, p) {
+  const m = METRICS[state.metric];
+  showTip(evt.clientX, evt.clientY, [
+    { t: p.nom + " : " + m.fmt(m.get(p)) },
+    { t: "Région : " + p.region.charAt(0) + p.region.slice(1).toLowerCase() },
+    { t: "Rang " + p.rang + " sur 45, " + niveauTxt[p.niveau] + " (indice " + fmt1(p.indice) + ")" },
+    { t: fmt1(p.parSalle) + " élèves par salle, " + fmt1(p.parEns) + " par enseignant" },
+    { t: "À construire d'ici 2030 : " + fmt(B[p.id].salles) + " salles, " + fmt(B[p.id].ens) + " enseignants" },
+  ]);
+}
+function tipFromRect(elem, p) {
+  const r = elem.getBoundingClientRect();
+  provTip({ clientX: r.right - 40, clientY: r.top }, p);
+}
+
+// ---------- survol / sélection partagés ----------
+function setHover(id) {
+  state.hov = id;
+  document.querySelectorAll(".hov").forEach(n => n.classList.remove("hov"));
+  if (id) document.querySelectorAll('[data-id="' + id + '"]').forEach(n => n.classList.add("hov"));
+}
+function select(id) {
+  state.sel = id;
+  renderMap(); renderRows(); renderDetail(); renderScatter(); renderTable();
+}
+
+// ---------- filtres ----------
+function buildFilters() {
+  const seg = $("seg-sc");
+  for (const k in SCENARIOS) {
+    const b = h("button", { type: "button", role: "radio", "aria-checked": String(k === state.sc), "data-sc": k, title: SCENARIOS[k].court, text: SCENARIOS[k].label });
+    b.addEventListener("click", () => { state.sc = k; seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-checked", String(x.dataset.sc === k))); renderAll(); });
+    seg.append(b);
+  }
+  const m = $("metrique");
+  for (const k in METRICS) m.append(h("option", { value: k, text: METRICS[k].label }));
+  m.value = state.metric;
+  m.addEventListener("change", () => { state.metric = m.value; renderMap(); });
+  $("budget").addEventListener("input", e => { state.budgetPct = +e.target.value; renderBudget(); });
+  $("strat").addEventListener("change", e => { state.strat = e.target.value; renderBudget(); });
+  const cs = $("cout");
+  for (const c of DATA.cout) cs.append(h("option", { value: c.id, text: c.libelle + " : " + c.valeur.toLocaleString("fr-FR") + " M FCFA" }));
+  cs.value = state.cout;
+  cs.addEventListener("change", e => { state.cout = e.target.value; renderKpis(); renderPlan(); });
+  $("norm-s").addEventListener("change", e => { state.normS = +e.target.value; renderAll(); });
+  $("norm-e").addEventListener("change", e => { state.normE = +e.target.value; renderAll(); });
+  $("theme").addEventListener("click", () => {
+    state.theme = state.theme === "auto" ? "light" : state.theme === "light" ? "dark" : "auto";
+    if (state.theme === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", state.theme);
+    $("theme").textContent = "Thème : " + { auto: "auto", light: "clair", dark: "sombre" }[state.theme];
+  });
+}
+
+// ---------- chiffres clés ----------
+function renderKpis() {
+  const forte = P.filter(p => p.niveau === "forte");
+  const sF = forte.reduce((a, p) => a + B[p.id].salles, 0), eF = forte.reduce((a, p) => a + B[p.id].ens, 0);
+  const part = (a, b) => b ? Math.round(100 * a / b) : 0;
+  const tile = (cls, lab, val, det) => h("div", { class: "card tile " + cls }, h("div", { class: "lab", text: lab }), h("div", { class: "val", text: val }), h("div", { class: "det", text: det }));
+  $("kpis").replaceChildren(
+    tile("hero", "Salles de classe à construire d'ici 2030", fmt(NAT.salles), SCENARIOS[state.sc].label + ", " + state.normS + " élèves par salle. Avec le remplacement des salles en paille ou banco : " + fmt(NAT.sallesRempl) + ". Coût estimé : environ " + milliards(NAT.salles) + " milliards de FCFA (" + coutUnit().toLocaleString("fr-FR") + " millions par salle, hypothèse à confirmer)."),
+    tile("", "Enseignants à recruter", fmt(NAT.ens), state.normE + " élèves par enseignant ; " + fmt(P.reduce((a, p) => a + p.ens, 0)) + " en poste en 2024-2025."),
+    tile("", "Provinces à tension forte", forte.length + " sur 45", "Elles portent " + part(sF, NAT.salles) + " % des salles et " + part(eF, NAT.ens) + " % des enseignants à prévoir."),
+    tile("", "Déplacés internes hébergés", mio(DATA.pdiTotal), "Au 31 mars 2023, dernier relevé du CONASUR.")
+  );
+}
+
+// ---------- carte ----------
+let mapBuilt = false;
+function renderMap() {
+  const m = METRICS[state.metric];
+  const vals = P.map(p => m.get(p));
+  const bornes = bornesQuantiles(vals, 5);
+  const svg = $("carte");
+  if (!mapBuilt) {
+    svg.querySelectorAll(".prov").forEach(g => {
+      const p = byId[g.dataset.id];
+      g.addEventListener("pointermove", e => { setHover(p.id); provTip(e, p); });
+      g.addEventListener("pointerleave", () => { setHover(null); hideTip(); });
+      g.addEventListener("click", () => select(p.id));
+    });
+    mapBuilt = true;
+  }
+  svg.querySelectorAll(".prov").forEach(g => {
+    const p = byId[g.dataset.id];
+    g.style.setProperty("--fill", "var(--seq" + (classeDe(m.get(p), bornes) + 1) + ")");
+    g.classList.toggle("sel", p.id === state.sel);
+  });
+  const sel = svg.querySelector('.prov[data-id="' + state.sel + '"]');
+  if (sel) svg.insertBefore(sel, $("etiquettes"));
+  const lab = $("etiquettes"); lab.replaceChildren();
+  P.filter(p => p.rang <= 5 || p.id === state.sel).forEach(p => lab.append(s("text", { x: p.centre[0], y: p.centre[1] + 3, text: p.nom })));
+  $("carte-titre").textContent = m.label;
+  $("carte-note").textContent = m.note + (state.metric === "salles" || state.metric === "ens" ? " Scénario : " + SCENARIOS[state.sc].label + "." : "") + " Cinq classes de 9 provinces ; la teinte va de la valeur la plus faible (à gauche de l'échelle) à la plus forte (à droite).";
+  // légende en 5 classes (quantiles : 9 provinces par classe)
+  const ramp = $("ramp"); ramp.replaceChildren();
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const lim = [mn, ...bornes, mx];
+  for (let c = 0; c < 5; c++) {
+    const txt = fmtRange(m, lim[c], lim[c + 1], c === 4);
+    ramp.append(h("div", {}, h("i", { style: "background:var(--seq" + (c + 1) + ")" }), txt));
+  }
+  svg.setAttribute("aria-label", "Carte des 45 provinces, colorée selon : " + m.label);
+}
+function fmtRange(m, a, b, last) {
+  const f = m.fmt;
+  return f(a) + (last ? " à " : " à ") + f(b);
+}
+
+// ---------- classement ----------
+function renderRows() {
+  const box = $("rows"); box.replaceChildren();
+  const list = P.slice().sort((a, b) => a.rang - b.rang);
+  const shown = state.all ? list : list.slice(0, 15);
+  if (!state.all && state.sel && !shown.some(p => p.id === state.sel)) shown.push(byId[state.sel]);
+  for (const p of shown) {
+    const r = h("button", { class: "row" + (p.id === state.sel ? " sel" : ""), type: "button", "data-id": p.id, "aria-label": "Rang " + p.rang + ", " + p.nom + ", indice " + fmt1(p.indice) },
+      h("span", { class: "rk", text: p.rang }), h("span", { class: "nm", text: p.nom }),
+      h("span", { class: "bar" }, h("i", { style: "width:" + p.indice + "%" })), h("span", { class: "vv", text: fmt1(p.indice) }));
+    r.addEventListener("pointermove", e => { setHover(p.id); provTip(e, p); });
+    r.addEventListener("pointerleave", () => { setHover(null); hideTip(); });
+    r.addEventListener("focus", () => { setHover(p.id); tipFromRect(r, p); });
+    r.addEventListener("blur", () => { setHover(null); hideTip(); });
+    r.addEventListener("click", () => select(p.id));
+    box.append(r);
+  }
+  $("more").textContent = state.all ? "N'afficher que les 15 premières" : "Afficher les 45 provinces";
+}
+
+// ---------- détail d'une province ----------
+const COMP = [["salles", "Élèves par salle", 25], ["enseignants", "Élèves par enseignant", 20], ["acces", "Enfants non scolarisés", 25], ["bati", "Bâti dégradé", 15], ["deplaces", "Déplacés hébergés", 15]];
+function renderDetail() {
+  const p = byId[state.sel], b = B[p.id], box = $("detail");
+  const meters = COMP.map(([k, lab, w]) => h("div", { class: "meter" },
+    h("span", { text: lab + " (" + w + " %)" }), h("span", { class: "tr" }, h("i", { style: "width:" + p.sc[k] + "%" })), h("span", { class: "sc", text: Math.round(p.sc[k]) })));
+  const fact = (v, l) => h("div", {}, h("b", { text: v }), l);
+  box.replaceChildren(
+    h("div", { class: "det-h" }, h("h2", { text: p.nom }), h("span", { class: "chip", text: "Rang " + p.rang + " sur 45 · " + niveauTxt[p.niveau] })),
+    h("p", { class: "note", text: "Ancienne région : " + p.region.charAt(0) + p.region.slice(1).toLowerCase() + " · nouvelle région : " + p.regionNew + (p.nouveaux.length > 1 ? " · scindée en " + p.nouveaux.length + " provinces dans le nouveau découpage" : "") }),
+    h("p", { class: "note", style: "margin-top:-6px", text: "Fiabilité de la projection : " + PALIER_TXT[DATA.fiab.prov[p.id].p][0] + " (" + PALIER_TXT[DATA.fiab.prov[p.id].p][1] + ")." }),
+    h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin-bottom:2px", text: "Indice " + fmt1(p.indice) + " sur 100. Contribution de chaque critère (rang 0 à 100) :" }),
+    ...meters,
+    h("div", { class: "facts" },
+      fact(fmt1(p.parSalle), "élèves par salle de classe (2024-2025)"), fact(fmt1(p.parEns), "élèves par enseignant"),
+      fact(pct(p.tbs24), "taux de scolarisation des 6-11 ans"), fact(pct(p.partPrec) + " / " + pct(p.partMauvais), "salles en matériau précaire / en mauvais état"),
+      fact(fmt(p.pdi), "déplacés hébergés (" + fmt1(p.pdi100) + " pour 100 hab., mars 2023)"), fact(fmt(p.salles) + " / " + fmt(p.ens), "salles / enseignants en 2024-2025"),
+      fact(fmt1(p.acces.dist) + " km", "distance théorique à l'école la plus proche (" + fmt1(p.acces.dist20) + " km en 2020-2021 ; " + fmt(p.acces.ecoles) + " écoles pour " + fmt(p.acces.km2 * p.acces.ecoles) + " km²)"),
+      fact(p.milieu.epeU == null ? "–" : fmt1(p.milieu.epeU) + " / " + (p.milieu.epeR == null ? "–" : fmt1(p.milieu.epeR)), "élèves par enseignant, urbain / rural (" + (p.milieu.partRurale == null ? "–" : pct(p.milieu.partRurale)) + " des élèves sont ruraux)")),
+    h("hr", { class: "hr" }),
+    h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin-bottom:4px", text: "Horizon 2030-2031 · " + SCENARIOS[state.sc].label + " · " + state.normS + " élèves par salle, " + state.normE + " par enseignant" }),
+    h("div", { class: "facts" },
+      fact(fmt(b.eleves), "élèves projetés (" + fmt(p.eleves24) + " en 2024-2025)"), fact(fmt(b.salles), "salles à construire (" + fmt(b.sallesRempl) + " en remplaçant les salles précaires)"),
+      fact(fmt(b.ens), "enseignants à recruter"), fact(fmt(p.pop[6]), "enfants de 6 à 11 ans (projection INSD)")));
+}
+
+// ---------- nuage : tension × volume ----------
+function renderScatter() {
+  const W = 620, H = 470, L = 58, R = 18, T = 14, Bm = 46;
+  const ymax = niceMax(Math.max(...P.map(p => B[p.id].salles)));
+  const X = v => L + (W - L - R) * v / 100, Y = v => T + (H - T - Bm) * (1 - v / ymax);
+  const svg = s("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Nuage de points : indice de tension (horizontal) et salles à construire d'ici 2030 (vertical), une province par point" });
+  for (let i = 0; i <= 4; i++) {
+    const v = ymax * i / 4;
+    svg.append(s("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v), class: i ? "gridl" : "axisl" }), s("text", { x: L - 8, y: Y(v) + 4, class: "axis-t", "text-anchor": "end", text: fmt(v) }));
+  }
+  for (let v = 0; v <= 100; v += 20) svg.append(s("text", { x: X(v), y: H - Bm + 16, class: "axis-t", "text-anchor": "middle", text: v }));
+  svg.append(s("text", { x: (L + W - R) / 2, y: H - 8, class: "ttl", "text-anchor": "middle", text: "Indice de tension (0 à 100)" }));
+  svg.append(s("text", { x: 12, y: (T + H - Bm) / 2, class: "ttl", "text-anchor": "middle", transform: "rotate(-90 12 " + ((T + H - Bm) / 2) + ")", text: "Salles à construire d'ici 2030" }));
+  svg.append(s("line", { x1: X(DATA.seuilForte), x2: X(DATA.seuilForte), y1: T, y2: H - Bm, stroke: "var(--ink2)", "stroke-width": 1, opacity: .45 }));
+  svg.append(s("text", { x: X(DATA.seuilForte) + 5, y: T + 11, class: "axis-t", text: "tension forte →" }));
+  const top = new Set(P.slice().sort((a, b) => B[b.id].salles - B[a.id].salles).slice(0, 4).map(p => p.id));
+  P.filter(p => p.rang <= 2).forEach(p => top.add(p.id)); top.add(state.sel);
+  const order = P.slice().sort((a, b) => (a.niveau === "forte") - (b.niveau === "forte"));
+  for (const p of order) {
+    const g = s("g", { "data-id": p.id, style: "cursor:pointer" });
+    const cx = X(p.indice), cy = Y(B[p.id].salles), isSel = p.id === state.sel;
+    g.append(s("circle", { cx, cy, r: 13, fill: "transparent" }),
+      s("circle", { cx, cy, r: isSel ? 7 : 5, fill: p.niveau === "forte" ? "var(--s1)" : "var(--neutral)", stroke: isSel ? "var(--ink)" : "var(--surface)", "stroke-width": 2 }));
+    g.addEventListener("pointermove", e => { setHover(p.id); provTip(e, p); });
+    g.addEventListener("pointerleave", () => { setHover(null); hideTip(); });
+    g.addEventListener("click", () => select(p.id));
+    svg.append(g);
+  }
+  // étiquettes sélectives ; si deux se chevauchent, la seconde est décalée vers le haut
+  const placed = [];
+  const prio = [...top].sort((a, b) => (b === state.sel) - (a === state.sel) || byId[a].rang - byId[b].rang);
+  for (const id of prio) {
+    const p = byId[id], cx = X(p.indice), right = cx > W - 110, w = 6.4 * p.nom.length;
+    const x0 = right ? cx - 9 - w : cx + 9;
+    let y = Y(B[id].salles) + 4;
+    for (let k = 0; k < 8 && placed.some(r => Math.abs(r.y - y) < 13 && x0 < r.x1 && x0 + w > r.x0); k++) y -= 13;
+    placed.push({ x0, x1: x0 + w, y });
+    svg.append(s("text", { x: right ? cx - 9 : cx + 9, y, class: "ttl", "text-anchor": right ? "end" : "start", style: "paint-order:stroke;stroke:var(--surface);stroke-width:3px;fill:var(--ink)", text: p.nom }));
+  }
+  $("scatter").replaceChildren(svg);
+  const nf2 = P.filter(p => p.niveau === "forte").length;
+  $("scatter-leg").replaceChildren(
+    h("span", { class: "it" }, h("span", { class: "dot", style: "background:var(--s1)" }), "Tension forte (" + nf2 + " provinces)"),
+    h("span", { class: "it" }, h("span", { class: "dot", style: "background:var(--neutral)" }), "Tension moyenne ou faible (" + (P.length - nf2) + ")"));
+}
+function niceMax(v) {
+  const p = Math.pow(10, Math.floor(Math.log10(v))), f = v / p;
+  return ([1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find(x => f <= x)) * p;
+}
+
+// ---------- plan d'action : enseignants et salles ----------
+const STRAT_TXT = {
+  equite: ["Équité", "chaque salle va à la province la plus chargée du moment (élèves par salle)"],
+  tension: ["Tension", "les provinces sont servies dans l'ordre décroissant de l'indice de tension"],
+  proportionnel: ["Proportionnelle", "le budget est réparti au prorata du déficit de chaque province"],
+};
+function renderPlan() {
+  const o = DATA.opt.ens[state.sc + "|" + state.normE];
+  const fact = (v, l) => h("div", {}, h("b", { text: v }), l);
+  const flows = o.flux.slice(0, 8).map(f => h("div", { class: "fl" },
+    h("span", { text: byId[f[0]].nom + " → " + byId[f[1]].nom }), h("b", { text: fmt(f[2]) }), h("span", { class: "km", text: Math.round(f[3]) + " km" })));
+  $("plan-ens").replaceChildren(
+    h("h2", { text: "Enseignants : redéployer avant de recruter" }),
+    h("p", { class: "note", text: "Programme linéaire : on déplace le plus d'enseignants possible des provinces qui en auront plus que nécessaire en 2030 vers celles qui en manquent, en minimisant la distance totale. " + SCENARIOS[state.sc].label + ", " + state.normE + " élèves par enseignant." }),
+    h("div", { class: "facts" },
+      fact(fmt(o.deficit), "enseignants manquent en 2030 (somme des déficits des provinces)"),
+      fact(fmt(o.excedent), "sont en excédent ailleurs (au-delà de la norme)"),
+      fact(fmt(o.deplaces) + (o.deficit ? " (" + pct(o.deplaces / o.deficit) + " du manque)" : ""), "peuvent être redéployés"),
+      fact(fmt(o.aRecruter), "restent à recruter, au lieu de " + fmt(o.deficit))),
+    h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin:14px 0 2px", text: o.deplaces ? "Principaux redéploiements (enseignants, distance à vol d'oiseau ; moyenne " + Math.round(o.distMoy) + " km)" : "Aucun redéploiement possible : aucune province n'a d'excédent au-delà de la norme." }),
+    h("div", { class: "flows" }, ...flows),
+    h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin:14px 0 2px", text: "Ville et campagne, à l'intérieur des provinces (2024-2025)" }),
+    h("p", { class: "ex", style: "margin-top:2px", text: "Égaliser les élèves par enseignant entre ville et campagne dans chaque province demanderait de déplacer environ " + fmt(P.reduce((a, p) => a + Math.max(0, p.milieu.deplacer || 0), 0)) +
+      " enseignants du milieu urbain vers le milieu rural. Plus grands écarts (élèves par enseignant, urbain contre rural) : " +
+      P.filter(p => p.milieu.rapport != null).sort((a, b) => b.milieu.rapport - a.milieu.rapport).slice(0, 4).map(p => p.nom + " (" + Math.round(p.milieu.epeU) + " contre " + Math.round(p.milieu.epeR) + ")").join(", ") +
+      ". Au niveau national, les deux milieux sont proches (35,9 et 34,9)." }),
+    h("p", { class: "ex", text: "Sécurité, langue et acceptabilité des affectations ne sont pas modélisées. Un enseignant déplacé n'est plus à recruter, mais le déplacement a un coût social et pédagogique." }));
+
+  const cur = STRATS[state.strat].m, tot = BUDGET.total;
+  const rows = ["equite", "tension", "proportionnel"].map(k => { const m = STRATS[k].m;
+    return h("tr", { class: k === state.strat ? "cur" : "" }, h("td", { text: STRAT_TXT[k][0] }), h("td", { text: fmt1(m.ratioMax) }), h("td", { text: m.auDessus50 }), h("td", { text: fmt(m.surcharge) }), h("td", { text: pct(m.partForte) })); });
+  const best = Object.entries(ALLOC).sort((a, b) => b[1] - a[1]).slice(0, 10), top = Math.max(1, best[0][1]);
+  const bars = best.filter(b => b[1] > 0).map(([id, n]) => h("div", { class: "row", style: "grid-template-columns: 1fr 1.2fr 56px" },
+    h("span", { class: "nm", text: byId[id].nom }), h("span", { class: "bar" }, h("i", { style: "width:" + (100 * n / top) + "%" })), h("span", { class: "vv", text: fmt(n) })));
+  $("plan-salles").replaceChildren(
+    h("h2", { text: "Salles : à qui donner le budget ?" }),
+    h("p", { class: "note", text: "Budget : " + fmt(BUDGET.salles) + " salles, soit " + state.budgetPct + " % du besoin de " + fmt(tot) + " (" + SCENARIOS[state.sc].label + ", " + state.normS + " élèves par salle), environ " + milliards(BUDGET.salles) + " milliards de FCFA à " + coutUnit().toLocaleString("fr-FR") + " millions par salle (estimation, voir « Méthode »). Trois règles sont comparées sur les mêmes provinces ; réglez le budget et la règle en haut de page." }),
+    h("table", { class: "cmp" },
+      h("thead", {}, h("tr", {}, ...["Règle", "Max élèves / salle", "Provinces > 50 / salle", "Élèves au-delà de 60 / salle", "Part vers tension forte"].map(t => h("th", { scope: "col", text: t })))),
+      h("tbody", {}, ...rows)),
+    h("p", { class: "ex", text: "Règle choisie, " + STRAT_TXT[state.strat][0].toLowerCase() + " : " + STRAT_TXT[state.strat][1] + ". Surcharge = élèves au-delà de 60 par salle (20 % au-dessus du standard de 50)." }),
+    h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin:12px 0 2px", text: "Les 10 provinces qui reçoivent le plus de salles (règle choisie)" }),
+    h("div", { class: "rows" }, ...bars));
+}
+function renderBudget() { recomputeAlloc(); renderPlan(); if (state.metric === "alloc") renderMap(); }
+
+// ---------- fiabilité des projections (un modèle statistique ferait-il mieux ?) ----------
+const PALIER_TXT = {
+  stable: ["élevée", "croissance régulière : la projection est fiable à quelques pour cent près"],
+  variable: ["moyenne", "des à-coups passés : la projection peut s'écarter nettement"],
+  tres_volatile: ["faible", "fermetures et réouvertures d'écoles : la projection est très incertaine"],
+};
+function renderFiab() {
+  const F = DATA.fiab, p1 = v => v == null ? "–" : pct(v, 1);
+  const meilleur = Math.min(...F.methodes.map(m => m.h1));
+  const lignes = F.methodes.map(m => h("tr", { class: m.h1 === meilleur ? "cur" : "" }, h("td", { text: m.nom }), h("td", { text: p1(m.h1) }), h("td", { text: p1(m.h2) }), h("td", { text: p1(m.h3) })));
+  const pal = F.paliers.map(r => h("tr", {}, h("td", { text: r.label }), h("td", { text: r.provinces }), h("td", { text: p1(r.h1) }), h("td", { text: p1(r.h3) })));
+  const tv = F.paliers.find(r => r.palier === "tres_volatile");
+  $("fiab").replaceChildren(
+    h("h2", { text: "Un modèle statistique ferait-il mieux que les scénarios ?" }),
+    h("p", { class: "note", text: "Nous avons testé des modèles qui prévoient la croissance des effectifs de chaque province (régressions robustes, arbres de gradient) et les avons comparés à des références simples. Test « à origine glissante » : on se place fin 2021, 2022 ou 2023, on entraîne sur le passé, on prévoit 1 à 3 ans, puis on compare à la réalité. Réponse : pas de façon convaincante. À 1 et à 2 ans, l'hypothèse « le taux de scolarisation reste constant » (la démographie seule) est la meilleure. À 3 ans, une régression robuste fait un peu mieux (8,7 % contre 9,7 %), mais sur une seule origine : on ne peut pas en conclure qu'elle est meilleure. Les scénarios sont donc plus honnêtes qu'un modèle qui paraîtrait précis." }),
+    h("div", { class: "grid two-b", style: "margin:0" },
+      h("div", {}, h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin-bottom:4px", text: "Erreur de prévision des effectifs, par province, pesée par les effectifs (plus petit = mieux)" }),
+        h("table", { class: "cmp" }, h("thead", {}, h("tr", {}, ...["Méthode", "à 1 an", "à 2 ans", "à 3 ans"].map(t => h("th", { scope: "col", text: t })))), h("tbody", {}, ...lignes)),
+        h("p", { class: "ex", text: "Moyenne sur les origines 2021 à 2023. À 3 ans, une seule origine (2021) : très fragile. La ligne en gras est la meilleure à 1 an." })),
+      h("div", {}, h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin-bottom:4px", text: "Fiabilité de la projection selon la stabilité passée de la province (hypothèse démographique)" }),
+        h("table", { class: "cmp" }, h("thead", {}, h("tr", {}, ...["Province", "Nombre", "Erreur à 1 an", "Erreur à 3 ans"].map(t => h("th", { scope: "col", text: t })))), h("tbody", {}, ...pal)),
+        h("p", { class: "ex", text: "Très volatiles : " + tv.liste.join(", ") + ". Palier = écart-type de la croissance des effectifs hors démographie : moins de 0,10 stable, 0,10 à 0,30 variable, plus de 0,30 très volatile." }))),
+    h("p", { class: "ex", text: "Limites du test : 45 provinces et 6 ans au plus, dont une crise (2021-2023) qui change le régime. Les modèles apprennent un passé qui ne ressemble pas à la reprise de 2023-2024 (effectifs nationaux +8 % par an). Erreur = somme des écarts absolus ÷ effectifs observés." }));
+}
+
+// ---------- trajectoire nationale ----------
+// la couleur suit le scénario : le scénario de référence (retour 2020-2021) porte le vert de la marque
+const SERIES = [["statu_quo", "var(--s3)"], ["retour", "var(--s1)"], ["universel", "var(--s2)"]];
+function renderLine() {
+  const W = 900, H = 360, L = 60, R = 270, T = 16, Bm = 40;
+  const hist = DATA.histEleves, y0 = hist[0].annee, y1 = HORIZON;
+  const proj = {};
+  for (const [k] of SERIES) { proj[k] = {}; for (let t = 2024; t <= 2030; t++) proj[k][t] = totalNational(P, k, state.normS, state.normE, t).eleves; }
+  const all = hist.map(d => d.eleves).concat(...SERIES.map(([k]) => Object.values(proj[k])));
+  const lo = Math.floor(Math.min(...all) / 5e5) * 5e5, hi = Math.ceil(Math.max(...all) / 5e5) * 5e5;
+  const X = t => L + (W - L - R) * (t - y0) / (y1 - y0), Y = v => T + (H - T - Bm) * (1 - (v - lo) / (hi - lo));
+  const lab = t => t + "-" + String(t + 1).slice(2);
+  const svg = s("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Élèves scolarisés en primaire : historique 2017-2018 à 2024-2025 et trois scénarios jusqu'en 2030-2031" });
+  for (let v = lo; v <= hi + 1; v += 5e5) {
+    svg.append(s("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v), class: v === lo ? "axisl" : "gridl" }), s("text", { x: L - 8, y: Y(v) + 4, class: "axis-t", "text-anchor": "end", text: (v / 1e6).toLocaleString("fr-FR") + " M" }));
+  }
+  for (const t of [2017, 2019, 2021, 2023, 2025, 2027, 2030]) svg.append(s("text", { x: X(t), y: H - Bm + 16, class: "axis-t", "text-anchor": "middle", text: lab(t) }));
+  const path = pts => "M" + pts.map(([t, v]) => X(t).toFixed(1) + " " + Y(v).toFixed(1)).join("L");
+  svg.append(s("path", { d: path(hist.map(d => [d.annee, d.eleves])), fill: "none", stroke: "var(--ink2)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+  for (const [k, col] of SERIES) {
+    const on = k === state.sc;
+    const pts = [[2024, proj[k][2024]]]; for (let t = 2025; t <= 2030; t++) pts.push([t, proj[k][t]]);
+    svg.append(s("path", { d: path(pts), fill: "none", stroke: col, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", opacity: on ? 1 : .55 }));
+    const ex = X(2030), ey = Y(proj[k][2030]);
+    svg.append(s("circle", { cx: ex, cy: ey, r: 4.5, fill: col, stroke: "var(--surface)", "stroke-width": 2 }));
+    svg.append(s("text", { x: ex + 10, y: ey + 4, class: "ttl", style: "fill:var(--ink);" + (on ? "font-weight:650" : ""), text: mio(proj[k][2030]) + " · " + SCENARIOS[k].label }));
+  }
+  svg.append(s("circle", { cx: X(2024), cy: Y(hist[hist.length - 1].eleves), r: 4.5, fill: "var(--ink2)", stroke: "var(--surface)", "stroke-width": 2 }));
+  const cross = s("line", { y1: T, y2: H - Bm, stroke: "var(--ink2)", "stroke-width": 1, opacity: 0, "pointer-events": "none" });
+  svg.append(cross);
+  const hit = s("rect", { x: L, y: T, width: W - L - R, height: H - T - Bm, fill: "transparent" });
+  hit.addEventListener("pointermove", e => {
+    const r = svg.getBoundingClientRect(), sx = (e.clientX - r.left) * W / r.width;
+    const t = Math.max(y0, Math.min(y1, Math.round(y0 + (sx - L) / (W - L - R) * (y1 - y0))));
+    cross.setAttribute("x1", X(t)); cross.setAttribute("x2", X(t)); cross.setAttribute("opacity", .5);
+    const lines = [{ t: lab(t) }];
+    if (t <= 2024) lines.push({ t: "Observé : " + fmt(hist[t - y0].eleves) + " élèves", key: "var(--ink2)" });
+    if (t >= 2024) for (const [k, col] of SERIES) lines.push({ t: SCENARIOS[k].label + " : " + fmt(proj[k][t]), key: col });
+    showTip(e.clientX, e.clientY, lines);
+  });
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("opacity", 0); hideTip(); });
+  svg.append(hit);
+  $("line").replaceChildren(svg);
+  $("line-leg").replaceChildren(
+    h("span", { class: "it" }, h("span", { class: "key", style: "border-color:var(--ink2)" }), "Observé"),
+    ...SERIES.map(([k, col]) => h("span", { class: "it" }, h("span", { class: "key", style: "border-color:" + col }), SCENARIOS[k].label)));
+}
+
+// ---------- tableau ----------
+const COLS = [
+  ["rang", "Rang", p => p.rang, v => v], ["nom", "Province", p => p.nom, v => v], ["region", "Ancienne région", p => p.region, v => v.charAt(0) + v.slice(1).toLowerCase()],
+  ["niveau", "Niveau", p => p.niveau, v => v], ["indice", "Indice", p => p.indice, fmt1],
+  ["parSalle", "Élèves / salle", p => p.parSalle, fmt1], ["parEns", "Élèves / ens.", p => p.parEns, fmt1], ["tbs", "Scolarisation", p => p.tbs24, v => pct(v)],
+  ["prec", "Salles précaires", p => p.partPrec, v => pct(v, 1)], ["pdi", "Déplacés / 100 hab.", p => p.pdi100, fmt1],
+  ["dist", "Distance théorique à l'école (km)", p => p.acces.dist, fmt1],
+  ["rural", "Élèves ruraux", p => p.milieu.partRurale == null ? -1 : p.milieu.partRurale, v => v < 0 ? "–" : pct(v)],
+  ["rapport", "Rural ÷ urbain (élèves / ens.)", p => p.milieu.rapport == null ? -1 : p.milieu.rapport, v => v < 0 ? "–" : v.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })],
+  ["salles", "Salles à construire", p => B[p.id].salles, fmt], ["ens", "Enseignants à recruter", p => B[p.id].ens, fmt],
+];
+function renderTable() {
+  const k = state.sort.k, col = COLS.find(c => c[0] === k);
+  const list = P.slice().sort((a, b) => { const x = col[2](a), y = col[2](b); return (typeof x === "string" ? x.localeCompare(y, "fr") : x - y) * state.sort.dir; });
+  const thead = h("thead", {}, h("tr", {}, ...COLS.map(c => { const th = h("th", { scope: "col", text: c[1] + (c[0] === k ? (state.sort.dir > 0 ? " ▲" : " ▼") : ""), "aria-sort": c[0] === k ? (state.sort.dir > 0 ? "ascending" : "descending") : "none" });
+    th.addEventListener("click", () => { state.sort = { k: c[0], dir: c[0] === state.sort.k ? -state.sort.dir : 1 }; renderTable(); }); return th; })));
+  const tbody = h("tbody", {}, ...list.map(p => h("tr", { "data-id": p.id }, ...COLS.map(c => h("td", { text: c[3](c[2](p)) })))));
+  $("tbl").replaceChildren(h("table", {}, thead, tbody));
+}
+function renderTable2() {
+  const hist = DATA.histEleves, rows = [];
+  for (let t = hist[0].annee; t <= HORIZON; t++) {
+    const r = [t + "-" + String(t + 1).slice(2), t <= 2024 ? fmt(hist[t - hist[0].annee].eleves) : "–"];
+    for (const k of ["statu_quo", "retour", "universel"]) r.push(t >= 2024 ? fmt(totalNational(P, k, state.normS, state.normE, t).eleves) : "–");
+    rows.push(r);
+  }
+  const head = ["Année scolaire", "Observé", "Statu quo", "Retour au niveau 2020-2021", "Accès universel"];
+  $("tbl2").replaceChildren(h("table", {}, h("thead", {}, h("tr", {}, ...head.map(x => h("th", { scope: "col", text: x, style: "cursor:default" })))),
+    h("tbody", {}, ...rows.map(r => h("tr", {}, ...r.map(c => h("td", { text: c })))))));
+}
+function downloadCsv() {
+  const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+  const rows = [COLS.map(c => q(c[1])).join(";")].concat(P.slice().sort((a, b) => a.rang - b.rang).map(p => COLS.map(c => { const v = c[2](p); return typeof v === "number" ? String(v).replace(".", ",") : q(v); }).join(";")));
+  const blob = new Blob(["﻿" + rows.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = h("a", { href: URL.createObjectURL(blob), download: "tension_provinces_2024_2025_scenario_" + state.sc + ".csv" });
+  document.body.append(a); a.click(); a.remove();
+}
+
+function renderAll() { recompute(); renderKpis(); renderMap(); renderRows(); renderDetail(); renderScatter(); renderPlan(); renderLine(); renderTable(); renderTable2(); }
+buildFilters();
+renderFiab();
+$("more").addEventListener("click", () => { state.all = !state.all; renderRows(); });
+$("csv").addEventListener("click", downloadCsv);
+$("tbl-toggle").addEventListener("click", () => { const t = $("tbl"), open = t.hidden; t.hidden = !open; $("tbl2").hidden = !open; $("tbl2-t").hidden = !open; $("tbl-toggle").setAttribute("aria-expanded", String(open)); $("tbl-toggle").textContent = open ? "Masquer le tableau" : "Afficher le tableau"; });
+renderAll();
+})();
+</script>
+</body>
+</html>

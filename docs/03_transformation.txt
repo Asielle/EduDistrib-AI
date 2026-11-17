@@ -1,0 +1,43 @@
+﻿03_transformation - panel province x annee
+
+panel_province_annee.csv    (script : scripts/build_panel.py)
+  360 lignes = 45 anciennes provinces x 8 annees scolaires (2017-2018 a 2024-2025), 91 colonnes.
+  Jointure des trois jeux de 02_nettoyage (tableau_I1, enseignants_IV1, salles_etat) sur
+  (annee_scolaire, pcode_province_old). Public + prive, avec la repartition public / prive.
+  Indicateurs : eleves par salle / enseignant / maitre / groupe / ecole ; parts de salles precaires,
+  en mauvais etat, anciennes ; ecoles sans logement de maitre ; ecarts a une norme.
+
+dictionnaire_variables.csv
+  Nom, type et description de chaque colonne du panel.
+
+Verifications : la somme des provinces egale exactement le total national (eleves, salles, ecoles) pour
+les 8 annees ; aucune valeur vide hors la ligne Komandjari 2022-2023 (province absente des annuaires,
+ecoles fermees : donnee_absente = vrai).
+
+NORMES : les besoins (salles_necessaires, enseignants_necessaires, deficits) utilisent 50 eleves par salle (standard du primaire
+cite par la JICA en 2009, rapport du 4e projet de construction d'ecoles primaires, p. 40 ; peut avoir evolue, a confirmer) et
+40 eleves par enseignant (HYPOTHESE de travail, aucune norme trouvee). Le deficit de salles est tres sensible a la norme
+(2024-2025 : 2 852 a 50 eleves/salle, 7 835 a 45, 16 065 a 40). Relancer avec d'autres normes :
+    python scripts/build_panel.py 02_nettoyage 03_transformation <eleves_par_salle> <eleves_par_enseignant>
+
+Ajoute depuis (91 colonnes) :
+  superficie_km2, km2_par_ecole, distance_theorique_ecole_km, enfants_6_11_par_ecole   acces : 0,5 x racine(superficie / ecoles en activite) =
+                                    distance moyenne THEORIQUE a l'ecole la plus proche (ordre de grandeur ; le Data Pack n'a pas les coordonnees des villages)
+  ecoles_osm_province.csv (scripts/extract_ecoles_osm.py) : ecoles OpenStreetMap par province ; OSM ne recense que 40 % des ecoles primaires
+                                    de la DGESS (5 658 contre 14 276) : trop incomplet pour reperer des zones blanches, sert de controle de couverture
+  eleves_urbain / _rural, filles_*     eleves et filles par milieu (tableau I.2) ; nb_enseignants_urbain / _rural (IV.1.4, IV.1.5)
+  part_eleves_rurale, part_filles_*    part des eleves ruraux ; filles / eleves par milieu
+  eleves_par_enseignant_urbain / _rural, rapport_rural_urbain_eleves_par_ens   ratio rural / urbain (plus de 1 = rural moins bien dote)
+  enseignants_a_deplacer_urbain_vers_rural   indicateur : enseignants a deplacer pour egaliser les ratios DANS la province (pas une recommandation)
+  NB : pas de salles par milieu dans les annuaires.
+  ecoles_eau_potable / _electricite / _latrines / _cantines / _cloture et part_ecoles_*   ecoles equipees (tableau V.4 des annuaires, public + prive) et part des ecoles fonctionnelles
+  pop_totale, pop_6_11, tbs         population INSD (2020+) et taux brut de scolarisation ; vides avant 2020
+  pdi_hebergees, pdi_par_100_hab    PDI hebergees au releve CONASUR le plus proche du 31 octobre ; 2019-2020 a 2022-2023
+                                    seulement (pas de releve apres mars 2023)
+  pdi_dernier_stock_connu           PDI hebergees au 31/03/2023, repetees sur toutes les annees (contexte 2023-2025)
+  date_reference_pdi                date du releve retenu
+
+L'indice de tension et le classement sont dans 05_interpretation.
+
+
+

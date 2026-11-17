@@ -1,0 +1,64 @@
+﻿04_analyse - projection 2030 des besoins en salles de classe et en enseignants
+
+Fichiers (script : scripts/projection_2030.py, entrees : 03_transformation/panel_province_annee.csv et
+02_nettoyage/population_province_age.csv)
+  projection_province_annee_scenario.csv   province x annee (2024-2025 a 2030-2031) x scenario
+  projection_2030_resume.csv               meme chose, 2030-2031 seulement
+  projection_sensibilite_normes.csv        totaux nationaux 2030 pour 5 couples de normes x 3 scenarios
+
+indice_tension_provinces_2024_2025.csv / indice_tension_robustesse.csv   (script : scripts/indice_tension.py ; ces deux fichiers sont deposes a l'etape 05)
+  Indice de tension par province, 2024-2025, de 0 a 100. Cinq composantes en rang percentile (100 = la plus tendue) :
+    eleves par salle 25 % ; eleves par enseignant 20 % ; acces (1 - TBS, enfants hors ecole) 25 % ;
+    bati degrade (moyenne des parts de salles precaires et de murs en mauvais etat) 15 % ;
+    deplaces hebergees pour 100 hab. (31/03/2023) 15 %.
+  Poids = PROPOSITION a discuter : 45 % repartition salles + enseignants (coeur du defi 3), 25 % acces, 30 % bati et deplaces.
+  Niveaux par tiers : forte / moyenne / faible (15 provinces chacun).
+  Robustesse : 5 ponderations alternatives (dont le bati remplace par bati + equipement : eau potable, latrines) ; correlation de rang 0,92 a 0,99 avec la proposition, sauf si l'on ne garde
+  que salles + enseignants (0,735, soit 0,74) ; 8 a 10 provinces communes sur le top 10.
+  ATTENTION : l'indice est RELATIF (taux), il ne donne pas les volumes. Houet (rang 27) a le plus gros
+  besoin en salles (1 679 a 50 eleves/salle) et Kadiogo (rang 37, tension faible) le plus gros besoin en enseignants (1 146) ; les 15 provinces a tension forte portent 40 % du besoin national en salles et 44 %
+  en enseignants (scenario retour_2020_2021). Lire l'indice avec les colonnes besoin_*.
+
+Methode de la projection
+  1. Population 6-11 ans par province et par annee : projections INSD (RGPH 2019, vol. 4, chap. 3, p. 199-496).
+  2. TBS = eleves / population 6-11 ans. TBS 2024-2025 recalcule = TBS publie par la DGESS (verifie sur Est, Sahel,
+     Nord, Centre : ecart nul).
+  3. Trois scenarios de TBS en 2030, interpolation lineaire depuis 2024-2025 :
+       statu_quo         TBS 2024-2025 maintenu (effet demographique seul)
+       retour_2020_2021  TBS revient a son niveau de 2020-2021, si superieur (avant l'effondrement lie a l'insecurite)
+       acces_universel   TBS = 100 % (les provinces deja au-dessus gardent leur niveau)
+  4. Besoins = eleves / norme ; deficit = besoin - stock 2024-2025 (stock inchange, pas d'attrition).
+  Horizon "2030" = annee scolaire 2030-2031 (annee_debut 2030).
+
+Resultats nationaux 2030 (norme de reference : 50 eleves/salle ; hypothese : 40 eleves/enseignant)
+  statu_quo         3,67 M eleves : 7 988 salles a construire, 3 721 enseignants a recruter
+  retour_2020_2021  4,19 M eleves : 17 447 salles, 13 157 enseignants
+  acces_universel   4,82 M eleves : 29 968 salles, 29 056 enseignants
+  Les salles precaires (murs paille/banco) a remplacer s'ajoutent (colonne *_avec_remplacement : +3 100 a +3 600 salles).
+  Cout estime des salles (04_analyse/parametres_cout_salle.csv, 15,7 M FCFA par salle) : scenario de reference environ 274 milliards de FCFA.
+
+Contexte deplaces : projection_province_annee_scenario.csv et projection_2030_resume.csv contiennent
+pdi_dernier_stock_connu et pdi_dernier_stock_par_100_hab (PDI hebergees au 31/03/2023). Ces colonnes ne
+modifient PAS les calculs : elles servent a lire les resultats (provinces d'accueil a fort deficit potentiel).
+
+LIMITES A CITER
+  - PDI : denominateur = population projetee par l'INSD, qui ne tient pas compte des deplacements : le ratio
+    PDI pour 100 habitants (ex. Soum 77 en oct. 2022) est donc indicatif.
+  - Norme salles : 50 eleves/salle = standard du primaire cite par la JICA en 2009 (rapport du 4e projet d'ecoles primaires, p. 40) ;
+    il peut avoir evolue, a confirmer aupres du ministere. Norme enseignants : 40 eleves/enseignant = HYPOTHESE (aucune norme trouvee).
+    Le resultat est tres sensible aux normes (statu_quo : 7 988 salles a 50 eleves/salle, 25 017 a 40). Voir projection_sensibilite_normes.csv.
+  - Les projections provinciales de l'INSD supposent la MEME structure par age et par sexe pour toutes les provinces
+    d'une meme region (INSD, p. 199) ; elles ne tiennent pas compte des deplacements de population lies a l'insecurite.
+  - Le TBS est tres bas dans les provinces touchees par l'insecurite (Tapoa 9 %, Yagha 12 %, Komandjari 13 %, Soum 16 %)
+    et les ecoles y sont fermees : le ratio eleves/salle de ces provinces ne mesure que les ecoles ouvertes. Les
+    scenarios retour_2020_2021 et acces_universel sont des besoins potentiels, pas des previsions : ils supposent
+    le retour de la securite.
+  - Le deficit national est la somme des deficits provinciaux positifs : un exces de salles ou d'enseignants dans une
+    province n'est pas compense par un deficit ailleurs (redeploiement possible, mais non modelise).
+  - Pas d'attrition des enseignants ni de duree de vie des salles (hors salles precaires) dans le calcul.
+  - Pas de modele statistique du TBS (la serie est trop perturbee par la crise 2021-2023) : les scenarios sont
+    des hypotheses explicites, pas des estimations.
+
+
+
+

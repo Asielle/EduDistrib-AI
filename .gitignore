@@ -1,0 +1,11 @@
+# donnees du challenge (reservees aux equipes admises, usage limite au concours)
+01_collecte/
+DataPack_DCB_2026*
+02_nettoyage/
+03_transformation/panel_*.csv
+04_analyse/*.csv
+!04_analyse/parametres_cout_salle.csv
+06_depots/
+07_documentation/
+__pycache__/
+*.pyc

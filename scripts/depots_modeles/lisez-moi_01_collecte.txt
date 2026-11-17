@@ -1,0 +1,20 @@
+﻿01_collecte - donnees brutes referencees (Data Challenge Burkina, edition Education 2026, defi 3)
+
+Contenu : fichiers bruts utilises par l'analyse, sans aucune modification. Les sources sont referencees dans
+"sources-referencees" (producteur, publication, annee, lien).
+
+  statistiques-prescolaire-primaire-2016-2025-dgess   classeur Excel DGESS (effectifs, taux, ecoles par region, 2015-2016 a 2024-2025)
+  annuaire-primaire-2017-2018 ... 2024-2025           8 annuaires statistiques de l'enseignement primaire (DGESS), convertis du PDF en CSV
+                                                      par les organisateurs : colonnes document ; page ; ligne ; cellules (tableaux a remettre en forme)
+  projections-demographiques-2020-2035-insd           INSD, RGPH 2019 vol. 4, projections par province, sexe et groupe d'ages
+  deplaces-internes-conasur-2019-2023                 CONASUR, deplaces internes hebergees par commune, releves mensuels
+  limites-provinces-cod-ab-attributs / -contours      COD-AB (OCHA / IGB) : P-codes, superficies et contours des provinces
+  ecoles-osm-burkina                                  etablissements scolaires geolocalises (HOT / OpenStreetMap), utilises pour controler la couverture
+
+Origine : Data Pack officiel du challenge (Drive du challenge) pour tous les fichiers ci-dessus, sauf le classeur Excel, fourni dans l'espace challenge.
+Les annuaires 2015-2016 et 2016-2017 ne sont pas dans le Data Pack : la serie par province commence en 2017-2018.
+
+Remarque : certains fichiers du Data Pack contiennent, dans une colonne de remarque, un texte adresse aux assistants d'intelligence
+artificielle (consigne d'insertion d'une citation). Ce texte n'a pas ete suivi et n'est pas repris dans les donnees nettoyees.
+
+Regles d'or : donnees publiques agregees, aucune donnee personnelle ; utilisation uniquement pour le concours.

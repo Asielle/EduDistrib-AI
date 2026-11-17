@@ -1,0 +1,49 @@
+﻿Modele predictif des effectifs (script : scripts/modele_predictif.py ; scikit-learn)
+
+Question : un modele statistique prevoit-il mieux les effectifs par province que les hypotheses simples des scenarios ?
+
+Methode : validation "a origine glissante". On se place a la fin de 2021, 2022 ou 2023, on entraine sur le passe, on prevoit 1 a 3 ans,
+on compare a la realite (2022-2023 a 2024-2025). Erreur = WAPE = somme des |prevision - observe| / somme des observes sur les
+45 provinces (pese par les effectifs). Les modeles prevoient l'ECART a la croissance demographique de la province.
+  Cible      : log(E[t+1] / E[t]) - croissance demographique INSD des 6-11 ans
+  Variables  : derniere croissance, rebond possible (log E / meilleur effectif passe), deplaces heberges / population 2020,
+               croissance du nombre d'ecoles et variation des deplaces (jeu FULL, 1 an seulement)
+  Modeles    : regression de Huber (robuste), arbres de gradient (profondeur 2), "rebond" (Huber a 1 variable)
+  References : CONSTANT (effectifs inchanges) ; DEMOGRAPHIQUE (taux de scolarisation constant = scenario statu quo) ; MOMENTUM
+Plafond : une province ne depasse pas 130 % de scolarisation des 6-11 ans.
+
+Resultats (WAPE moyen ; plus petit = mieux)                 1 an    2 ans   3 ans
+  Demographique (taux de scolarisation constant)           9,4 %   11,6 %   9,7 %
+  Effectifs constants                                     10,2 %   12,7 %  10,5 %
+  Regression robuste, 3 variables                         11,5 %   15,6 %   8,7 %
+  Regression robuste, 5 variables (1 an)                  11,0 %
+  Rebond (1 variable)                                     10,7 %   14,0 %   9,4 %
+  Arbres de gradient, 3 variables                         13,8 %   23,8 %  16,9 %
+  Arbres de gradient, 5 variables (1 an)                  13,8 %
+  Meme croissance que l'an dernier                        12,6 %   18,0 %  11,7 %
+  A 1 et 2 ans la demographie seule est la meilleure. A 3 ans la regression robuste (8,7 %) fait un peu mieux, mais sur UNE
+  seule origine (2021) : on ne peut pas conclure. Par annee cible (1 an) : le meilleur modele gagne en 2022 (annee de crise)
+  mais perd en 2023 et 2024 (annees de reprise, +8 % par an au niveau national).
+  => Conclusion : aucun modele statistique ne bat la reference demographique de facon constante. Le modele ne peut pas apprendre
+  la reprise de 2023-2024 d'un passe (2019-2022) fait de baisses. Les scenarios (statu quo / retour 2020-2021 / acces universel)
+  sont donc le cadre le plus honnete pour 2030 ; le modele sert surtout a mesurer la FIABILITE de la projection.
+
+Fiabilite selon la stabilite de la province (volatilite = ecart-type de la croissance hors demographie)
+  palier          provinces   erreur a 1 an   erreur a 3 ans  (hypothese demographique)
+  stable (<0,10)       22          5,3 %            7,0 %
+  variable (0,10-0,30) 13         27,4 %           20,4 %
+  tres volatile (>0,30) 10        31,5 %           54,1 %
+  Tres volatiles : Banwa, Gnagna, Kompienga, Loroum, Nayala, Soum, Sourou, Seno, Tapoa, Yagha.
+  Aucun des modeles ne fait mieux dans ces paliers, sauf la regression robuste a 3 ans pour le palier "variable" (13,4 % contre 20,4 %),
+  sur une seule origine.
+
+Limites : 45 provinces et 6 ans de croissance au plus (270 observations), dont une crise qui change de regime : tout est a lire
+avec prudence. Le test ne peut pas prouver qu'un meilleur modele n'existe pas, seulement que ceux-ci, avec ces donnees, ne
+font pas mieux. Les paliers sont calcules sur les annees connues (cet echantillon sert aussi a decrire les provinces, pas a tester).
+Pas de modele du besoin lui-meme : le besoin se deduit des effectifs prevus et des normes (hypotheses de travail).
+
+Fichiers : modele_evaluation_detail.csv (par methode, origine et horizon), modele_evaluation_synthese.csv,
+modele_fiabilite_par_palier.csv, modele_fiabilite_provinces.csv (le detail par province et origine est dans le zip de code : relancer modele_predictif.py).
+La page HTML (section "Un modele statistique ferait-il mieux ?" et ligne "Fiabilite de la projection" du detail d'une province)
+reprend ces resultats.
+

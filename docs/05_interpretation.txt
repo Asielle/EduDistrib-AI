@@ -1,0 +1,41 @@
+﻿05_interpretation - tableau de bord d'aide a l'implantation
+
+tableau_de_bord_implantation.html   (script : scripts/build_dashboard.py ; modeles : scripts/dashboard/)
+  Prototype EduDistrib AI : page unique (environ 190 Ko) qui s'ouvre dans n'importe quel navigateur, sans bibliotheque externe.
+  Contenu : chiffres cles ; carte des 45 provinces (indice de tension, salles ou enseignants a prevoir en 2030,
+  taux de scolarisation, deplaces) ; classement ; detail d'une province ; nuage tension x volume ; trajectoire des
+  effectifs 2017-2030 (3 scenarios) ; tableaux de donnees et export CSV ; methode et limites.
+  Filtres : scenario 2030, norme d'eleves par salle (40/45/50), norme d'eleves par enseignant (40/45/50), variable de la carte.
+  Theme clair / sombre.
+
+Plan d'action (optimisation, voir 04_analyse/LISEZ-MOI-optimisation.txt) : section "Enseignants : redeployer avant de recruter"
+  (resultats du programme lineaire, 9 combinaisons scenario x norme) et section "Salles : a qui donner le budget ?" (curseur de
+  budget et trois regles de repartition, calculees en direct). Option de carte "Salles allouees par le budget choisi".
+
+Reconstruire la page apres un changement de donnees ou de ponderation (lancer d'abord scripts/optimisation_2030.py si les besoins changent) :
+    python scripts/build_dashboard.py "<dossier du projet>"
+Le script verifie d'abord que le calcul JavaScript de la page reproduit exactement la projection Python
+(135 valeurs, ecart nul) avant d'ecrire le fichier.
+
+Identite visuelle (logo EduDistrib AI)
+  - Le logo est integre dans l'en-tete (reduit a 440 px, WebP, 18 Ko au lieu de 1,2 Mo), sur fond blanc pour rester lisible en theme sombre.
+  - Couleurs de la marque : vert (#0a7d32, #1fa05a en theme sombre) pour l'identite principale (carte, classement, nuage, scenario
+    de reference) ; or (#d79c0c / #b87800) pour l'accent (filet d'en-tete, scenario "acces universel") ; bleu (#2a78d6 / #3987e5)
+    pour la 3e serie (statu quo). Le rouge du drapeau n'est pas utilise : rouge et vert se confondent en cas de daltonisme.
+  - Carte : une seule teinte (vert), de la valeur la plus faible a la plus forte, rampe de luminosite monotone verifiee.
+  - Validation daltonisme (3 series, tous couples) : theme clair PASS (ecart CVD 15,8 ; vision normale 25,5) ; theme sombre PASS
+    avec avertissement (ecart CVD 7,3 entre or et vert, dans la zone 6-8) : autorise car l'identite des courbes est aussi portee
+    par la legende, les etiquettes directes en bout de courbe et le tableau de donnees.
+  - Contraste de l'or sur fond clair (2,4:1) : compense par ces memes etiquettes directes et par le tableau.
+
+Choix de conception
+  - Contours : COD-AB (OCHA/IGB), simplifies a ~1 km pour alleger la page. Les provinces Soum et Tapoa, scindees dans le
+    nouveau decoupage, restent regroupees (les donnees sont a l'echelle des 45 anciennes provinces).
+  - Carte en 5 classes de 9 provinces (quantiles), une seule teinte, des valeurs faibles aux valeurs fortes.
+  - Normes : 50 eleves par salle (standard du primaire cite par la JICA en 2009, a confirmer) et 40 eleves par enseignant (hypothese) ; 40/45/50 modifiables, jamais cachees.
+  - Cout d'une salle : filtre a 3 valeurs (10 / 15,7 / 33 millions de FCFA, sources dans 04_analyse/parametres_cout_salle.csv).
+
+Relancer toute la chaine (etapes 02 a 05) :
+  python scripts/relancer_tout.py <dossier du projet>   (environ 35 secondes ; relancer_tout.py est dans le zip de code de cette etape ;
+  placer les scripts des zips 02 a 05 dans un meme dossier scripts/, avec le sous-dossier dashboard/). Teste sur une copie propre : fichiers identiques.
+
