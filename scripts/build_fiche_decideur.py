@@ -43,6 +43,9 @@ def main():
     forte = idx[idx.niveau == "forte"]
     top = idx.head(5)
     n_vol = int((pal.palier == "tres_volatile").sum())
+    inc = pd.read_csv(A("04_analyse", "modele_incertitude_par_palier.csv"), sep=";")
+    mg = {x.palier: round(100 * x.erreur_p80) for x in inc[inc.horizon == 3].itertuples()}     # meme marge que le tableau de bord
+    n_pal = pal.palier.value_counts()
     lignes = "".join(
         f"<tr><td class=r>{int(x.rang)}</td><td>{html.escape(x.province)}</td><td class=n>{f1(x.indice_tension)}</td><td class=n>{f1(x.eleves_par_salle)}</td>"
         f"<td class=n>{round(100 * x.tbs)}{NB}%</td><td class=n>{nb(x.besoin_salles_2030_retour)}</td></tr>" for x in top.itertuples())
@@ -87,7 +90,7 @@ ul {{ margin: 2px 0 2px; padding-left: 16px; }} li {{ margin: 0 0 2px; }}
 <li><b>Répartir le budget de salles</b> : avec la moitié du besoin ({nb(q.loc['equite'].budget_salles)} salles, environ {nb(md(q.loc['equite'].budget_salles))} milliards de FCFA), la règle « équité » évite toute classe de plus de 60 élèves ; la règle « tension » concentre {round(100 * q.loc['tension'].part_salles_tension_forte)}{NB}% des salles sur les provinces tendues mais laisse des classes jusqu'à {nb(q.loc['tension'].ratio_max)} élèves. Le choix est politique : le tableau de bord montre l'effet de chaque règle.</li>
 <li><b>Utiliser le tableau de bord</b> : changer le scénario, les normes, le budget et le coût d'une salle, et lire la carte, le classement et le plan d'action de chaque province.</li></ul>
 
-<div class="lim"><b>À savoir avant de décider.</b> La norme de 50 élèves par salle vient d'un standard cité par la JICA en 2009 (à confirmer auprès du ministère) ; celle de 40 élèves par enseignant est une hypothèse. Le coût d'une salle est un ordre de grandeur ({nb(cout['bas'])} à {nb(cout['haut'])} millions de FCFA, valeur centrale {f1(cen)}). Les scénarios de reprise supposent le retour de la sécurité. Pour {n_vol} provinces très volatiles, les projections se lisent avec une grande prudence.</div>
+<div class="lim"><b>À savoir avant de décider.</b> La norme de 50 élèves par salle vient d'un standard cité par la JICA en 2009 (à confirmer auprès du ministère) ; celle de 40 élèves par enseignant est une hypothèse. Le coût d'une salle est un ordre de grandeur ({nb(cout['bas'])} à {nb(cout['haut'])} millions de FCFA, valeur centrale {f1(cen)}). Les scénarios de reprise supposent le retour de la sécurité. Les besoins de 2030 sont des ordres de grandeur : selon la stabilité passée de la province, la marge d'erreur est d'environ ±{mg['stable']}{NB}% ({n_pal['stable']} provinces stables), ±{mg['variable']}{NB}% ({n_pal['variable']} variables) et ±{mg['tres_volatile']}{NB}% ({n_pal['tres_volatile']} très volatiles) ; c'est un minimum, la fourchette de chaque province est dans le tableau de bord.</div>
 <div class="pied">Sources : DGESS/MENAPLN (annuaires 2017-2025), INSD (RGPH 2019, projections), CONASUR (déplacés, mars 2023), IGB/OCHA (COD-AB). Statistiques publiques agrégées. Détail et méthode : documentation de 15 pages maximum.</div>
 </body></html>"""
     sortie = A("05_interpretation", "fiche_decideur_une_page.pdf")

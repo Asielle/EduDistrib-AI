@@ -14,7 +14,7 @@ DataPack_DCB_2026*
 /Presentation_Rencontre_*.pdf
 06_depots/
 07_documentation/
-08_a_deposer/
+08_a_deposer*/
 __pycache__/
 *.pyc
 *(Récupération automatique)*
