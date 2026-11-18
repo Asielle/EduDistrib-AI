@@ -5,6 +5,8 @@
 Prototype d'aide à la décision pour **répartir les salles de classe et les enseignants du primaire au Burkina Faso** et estimer les besoins à l'horizon 2030.
 Projet de l'équipe **Dem digital**, Data Challenge Burkina, édition Éducation 2026, **défi 3** (optimisation de la répartition des infrastructures et du personnel enseignant).
 
+**Tableau de bord en ligne** : https://asielle.github.io/EduDistrib-AI/05_interpretation/tableau_de_bord_implantation.html
+
 ## Ce que fait le projet
 
 - **Nettoyage** de tableaux d'annuaires statistiques (PDF convertis en CSV) : écoles, salles, enseignants, état et équipement des écoles, élèves par milieu, population, déplacés internes.
