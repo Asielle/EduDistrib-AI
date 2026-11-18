@@ -47,3 +47,22 @@ modele_fiabilite_par_palier.csv, modele_fiabilite_provinces.csv (le detail par p
 La page HTML (section "Un modele statistique ferait-il mieux ?" et ligne "Fiabilite de la projection" du detail d'une province)
 reprend ces resultats.
 
+
+
+----------------------------------------------------------------------
+AJOUT (mise a jour) - Pistes testees pour ameliorer le modele (resultats : aucune ne bat la reference demographique)
+Meme protocole (origine glissante 2021-2023, WAPE moyen).
+  Methode                                        1 an    2 ans   3 ans
+  Demographique (reference)                      9,4 %   11,6 %   9,7 %
+  Mixte 50/50 (demographique + Huber)           10,3 %   13,3 %   8,2 %   (gain a 3 ans sur UNE seule origine : non concluant)
+  Par palier (stable -> demographique, sinon mixte) 9,8 %  12,4 %   9,3 %
+  Huber entraine separement par palier          11,0 %   16,2 %  12,1 %   (trop peu de lignes par palier : plus mauvais)
+  Huber + nouveaux inscrits CP1 (region, 1 an)  12,9 %   -        -       (reference Huber : 11,5 %) -> l'ajout degrade (donnee regionale, 135-223 lignes)
+Le poids 50/50 du mixte est fixe a priori, il n'est pas ajuste sur le test. Fichiers : modele_cp1_test.csv ; les nouvelles methodes figurent dans
+modele_evaluation_*.csv et modele_fiabilite_*.csv.
+
+Fourchette d'incertitude (fourchette_projection.py -> projection_2030_fourchette.csv)
+Erreur relative reelle de la prevision demographique, par palier de stabilite, mesuree par le test (modele_erreurs_par_province.csv, modele_incertitude_par_palier.csv).
+On retient le percentile 80 de l'erreur absolue a 3 ans : stable +/-10 %, variable +/-37 %, tres volatile +/-74 %. Les bornes bas/haut s'appliquent aux eleves, salles
+et enseignants necessaires. LIMITE : 2030 est a 6 ans de 2024 et le test ne depasse pas 3 ans -> c'est un MINIMUM, pas un intervalle de confiance statistique ;
+le palier 'tres volatile' repose sur 6 a 29 observations. Les marges des provinces ne s'annulent pas : ne pas sommer les bornes pour obtenir une fourchette nationale.

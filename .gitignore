@@ -2,10 +2,21 @@
 01_collecte/
 DataPack_DCB_2026*
 02_nettoyage/
-03_transformation/panel_*.csv
+03_transformation/*.csv
+03_transformation/*.md
+03_transformation/LISEZ-MOI.txt
 04_analyse/*.csv
 !04_analyse/parametres_cout_salle.csv
+04_analyse/LISEZ-MOI*.txt
+05_interpretation/LISEZ-MOI.txt
+/DONNEES_STATISTQUES_*.xlsx
+/Document_du_challenge_*.pdf
+/Presentation_Rencontre_*.pdf
 06_depots/
 07_documentation/
+08_a_deposer/
 __pycache__/
 *.pyc
+*(Récupération automatique)*
+/scripts/build_documentation.py
+/scripts/figures_documentation.py

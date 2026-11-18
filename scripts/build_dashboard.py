@@ -254,7 +254,9 @@ def donnees_fiabilite(racine):
             row[f"h{h}"] = round(float(x.wape.iloc[0]), 4) if len(x) else None
         row["liste"] = sorted(P[P.palier == pal].province) if pal == "tres_volatile" else []
         paliers.append(row)
-    return {"methodes": meth, "paliers": paliers,
+    inc = pd.read_csv(os.path.join(d, "modele_incertitude_par_palier.csv"), sep=";")
+    marge = {r.palier: round(float(r.erreur_p80), 4) for r in inc[inc.horizon == 3].itertuples()}   # meme regle que fourchette_projection.py
+    return {"methodes": meth, "paliers": paliers, "marge": marge,
             "prov": {r.pcode_province_old: {"p": r.palier, "v": float(r.volatilite)} for r in P.itertuples()}}
 
 
@@ -285,6 +287,33 @@ def verifier_allocation_js(racine, donnees):
     assert mauvais == 0, "l'allocation de la page ne reproduit pas optimisation_2030.py"
 
 
+def verifier_fourchette_js(racine, donnees):
+    """Compare la fourchette calculee par la page (calc.js, bande) au fichier projection_2030_fourchette.csv (Python)."""
+    cle_sc = {"statu_quo": "statu_quo", "retour_2020_2021": "retour", "acces_universel": "universel"}
+    f = pd.read_csv(os.path.join(racine, "04_analyse", "projection_2030_fourchette.csv"), sep=";", dtype={"pcode_province_old": str})
+    rows = [{"id": r.pcode_province_old, "sc": cle_sc[r.scenario], "m": float(r.marge_relative)} for r in f.itertuples()]
+    code = (
+        "const c=require(process.argv[1]);const d=JSON.parse(require('fs').readFileSync(process.argv[2],'utf8'));"
+        "const rows=JSON.parse(require('fs').readFileSync(process.argv[3],'utf8'));const by={};for(const p of d.provinces)by[p.id]=p;"
+        "console.log(JSON.stringify(rows.map(r=>c.bande(by[r.id],r.sc,50,40,r.m))));")
+    with tempfile.TemporaryDirectory() as tmp:
+        f1, f2 = os.path.join(tmp, "d.json"), os.path.join(tmp, "r.json")
+        with open(f1, "w", encoding="utf-8") as fh:
+            json.dump(donnees, fh)
+        with open(f2, "w", encoding="utf-8") as fh:
+            json.dump(rows, fh)
+        res = subprocess.run(["node", "-e", code, os.path.join(racine, "scripts", "dashboard", "calc.js"), f1, f2],
+                             capture_output=True, text=True, check=True)
+    mauvais = 0
+    for r, m in zip(f.itertuples(), json.loads(res.stdout)):
+        ok = (m["bas"]["eleves"] == r.eleves_bas and m["haut"]["eleves"] == r.eleves_haut
+              and m["bas"]["salles"] == r.salles_a_construire_bas and m["haut"]["salles"] == r.salles_a_construire_haut
+              and m["bas"]["ens"] == r.enseignants_a_recruter_bas and m["haut"]["ens"] == r.enseignants_a_recruter_haut)
+        mauvais += not ok
+    print(f"verification fourchette JS vs Python : {len(f)} cas, {mauvais} ecart(s)")
+    assert mauvais == 0, "la fourchette de la page ne reproduit pas fourchette_projection.py"
+
+
 def main():
     racine = sys.argv[1]
     with open(os.path.join(racine, "01_collecte", "04_Cartographie_SIG", "geojson", "bfa_admin2.geojson"), encoding="utf-8") as f:
@@ -295,6 +324,7 @@ def main():
     verifier_allocation_js(racine, donnees)
     donnees["opt"] = {"ens": donnees_optimisation(racine)}
     donnees["fiab"] = donnees_fiabilite(racine)
+    verifier_fourchette_js(racine, donnees)
     cout = pd.read_csv(os.path.join(racine, "04_analyse", "parametres_cout_salle.csv"), sep=";")
     donnees["cout"] = [{"id": r.id, "libelle": r.libelle, "valeur": float(r.cout_millions_fcfa_par_salle)} for r in cout.itertuples()]
 

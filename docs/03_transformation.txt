@@ -41,3 +41,16 @@ L'indice de tension et le classement sont dans 05_interpretation.
 
 
 
+
+
+----------------------------------------------------------------------
+AJOUT (mise a jour) - Controle du panel et contexte regional (classeur DGESS 2015-2016 a 2024-2025)
+1) controle_regions.py : la somme des provinces du panel est comparee, par region et par annee, aux totaux officiels du classeur DGESS
+   (effectifs et nombre d'ecoles ; 13 regions x 8 ans). Resultat : ecart de 0,0 % partout (04_analyse/controle_panel_vs_regions.csv). Le panel reproduit
+   exactement les chiffres officiels ; le creux de 2022-2023 dans certaines provinces (ex. Banwa : 295 eleves) figure dans les donnees officielles
+   (ecoles non recensees), il ne vient pas de notre extraction.
+   Sortie complementaire : series_regionales_dgess.csv (eleves, ecoles, nouveaux inscrits au CP1, par region, 2015-2016 a 2024-2025).
+2) contexte_regional.py : contexte_region_annee.csv - TBA, TBS, taux d'achevement, taux de reussite au CEP, effectifs du prescolaire, par region et par annee.
+   Variables de REGION (identiques pour les provinces d'une meme region), a joindre sur (region_ancienne, annee_debut). Le TBS/TBA officiels reposent sur
+   les denominateurs de la DGESS ; ils different du tbs du panel (projections INSD) : ne pas les melanger.
+Source non retenue : profils de pauvrete regionaux (EHCVM 2018) : 10 regions sur 13 seulement, valeurs lisibles pour 5 regions, annee 2018 unique. Trop incomplet pour une variable de contexte fiable.

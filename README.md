@@ -17,6 +17,13 @@ Projet de l'équipe **Dem digital**, Data Challenge Burkina, édition Éducation
 
 Résultats clés (scénario de référence, 50 élèves par salle, 40 par enseignant) : 15 provinces en tension forte, 17 447 salles à construire d'ici 2030, 13 157 enseignants à recruter dont 2 318 peuvent être redéployés. La méthode, les limites et les résultats détaillés sont dans `docs/`.
 
+## Mise à jour v2
+
+- **Contrôle du panel** : la somme des provinces reproduit exactement les totaux régionaux officiels de la DGESS (13 régions × 8 ans, écart 0,0 %). Le creux de 2022-2023 dans certaines provinces vient des données officielles, pas de l'extraction.
+- **Pistes testées pour le modèle** (mélange démographique + Huber, modèle par palier de stabilité, nouveaux inscrits au CP1) : aucune ne bat la référence démographique de façon constante. Résultats négatifs conservés dans `docs/04_modele.txt`.
+- **Fourchette d'incertitude** de la projection 2030 : ± 10 % (provinces stables), ± 37 % (variables), ± 74 % (très volatiles), d'après l'erreur réelle à 3 ans. Affichée dans le détail de chaque province du tableau de bord ; calcul vérifié contre Python avant écriture. C'est un minimum : 2030 est plus loin que le test.
+- **Nouveaux scripts** : `controle_regions.py`, `contexte_regional.py`, `esu_province.py`, `modele_cp1.py`, `fourchette_projection.py` (déjà branchés dans `relancer_tout.py`). Ils lisent le classeur DGESS 2015-2025 (à la racine) et la transcription ESU (`01_collecte/esu_transcription_manuelle/`), qui font partie du Data Pack et ne sont pas dans ce dépôt.
+
 ## Hypothèses à connaître
 
 - **50 élèves par salle** : standard du primaire cité par la JICA en 2009, peut avoir évolué, non confirmé par le ministère. **40 élèves par enseignant** : hypothèse de travail.

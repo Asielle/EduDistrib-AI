@@ -142,6 +142,56 @@ def prevoir_recursif(modele, cols, E, EC, PDI, P611, ids, origine, h_max, ref_po
     return out
 
 
+SEUILS = (0.10, 0.30)      # volatilite < 0,10 : stable ; >= 0,30 : tres volatile (log-croissance, hors demographie)
+PALIERS = ("stable", "variable", "tres_volatile")
+POIDS_MIXTE = 0.5          # fixe a priori (moyenne simple), PAS ajuste sur le test
+
+
+def volatilite(valeurs):
+    return float(np.sqrt(np.nanmean(np.square(valeurs))))
+
+
+def palier(v):
+    return "stable" if v < SEUILS[0] else ("variable" if v < SEUILS[1] else "tres_volatile")
+
+
+def previsions_combinees(D, E, EC, PDI, P611, ids, O, hmax):
+    """Methodes qui combinent la reference demographique et la regression de Huber (jeu REC), a l'origine O.
+    - mixte             : moyenne des previsions demographique et Huber (poids fixe 50/50).
+    - par_palier        : province stable -> demographique ; province variable / tres volatile -> mixte.
+    - huber_par_palier  : un Huber entraine separement sur chaque palier de stabilite (le palier se calcule avec les annees <= O).
+    Retourne ({methode: {horizon: prevision par province}}, tableau des paliers).
+    Les paliers n'utilisent que le passe (annees <= O) : pas de fuite d'information."""
+    vol = {pid: volatilite(D[(D.pcode == pid) & (D.Y <= O)]["g"].values) for pid in ids}
+    pal = np.array([palier(vol[pid]) for pid in ids])
+    train = D[(D.Y <= O)].dropna(subset=FULL + ["g"]).copy()
+    train["palier"] = train["pcode"].map({pid: p for pid, p in zip(ids, pal)})
+    fab = fabriquer_modeles()["huber"][0]
+    mh = fab()
+    mh.fit(train[REC].values, train["g"].values)
+    pr_h = prevoir_recursif(mh, REC, E, EC, PDI, P611, ids, O, hmax, None)
+    pr_pal = {}
+    for niv in PALIERS:
+        tr = train[train.palier == niv]
+        if len(tr) >= 15:                       # trop peu de lignes : on retombe sur le Huber global
+            m = fab()
+            m.fit(tr[REC].values, tr["g"].values)
+            pr_pal[niv] = prevoir_recursif(m, REC, E, EC, PDI, P611, ids, O, hmax, None)
+        else:
+            pr_pal[niv] = pr_h
+    e0 = np.array([E.loc[pid, O] for pid in ids], float)
+    tbs0 = e0 / P611[O].values
+    out = {"demographique": {}, "huber_REC": {}, "constant": {}, "mixte": {}, "par_palier": {}, "huber_par_palier": {}}
+    for h in range(1, hmax + 1):
+        demo = tbs0 * P611[O + h].values
+        hub = pr_h[O + h]
+        mix = POIDS_MIXTE * demo + (1 - POIDS_MIXTE) * hub
+        out["demographique"][h], out["huber_REC"][h], out["constant"][h], out["mixte"][h] = demo, hub, e0, mix
+        out["par_palier"][h] = np.where(pal == "stable", demo, mix)
+        out["huber_par_palier"][h] = np.array([pr_pal[pal[k]][O + h][k] for k in range(len(ids))])
+    return out, pal
+
+
 def main():
     racine = sys.argv[1]
     d_out = os.path.join(racine, "04_analyse")
@@ -192,29 +242,32 @@ def main():
                     prev = np.minimum(test["E_prev"].values * np.exp(g), TBS_PLAFOND * P611[O + 1].values)
                     enregistrer(nm, jeu, O, 1, np.nan_to_num(prev), obs_all[O + 1], okm)
 
-    # ---- fiabilite selon la stabilite passee de la province (volatilite de l'ecart a la demographie) ----
-    def volatilite(pid_series_rows):
-        return float(np.sqrt(np.nanmean(np.square(pid_series_rows))))
-
-    SEUILS = (0.10, 0.30)      # volatilite < 0,10 : stable ; >= 0,30 : tres volatile (log-croissance, hors demographie)
-    def palier(v):
-        return "stable" if v < SEUILS[0] else ("variable" if v < SEUILS[1] else "tres_volatile")
-
-    seg_rows = []
+    # ---- methodes combinees (mixte, par palier) : memes origines, memes metriques que les autres ----
     for O in ORIGINES:
         hmax = min(3, ANNEE_MAX - O)
-        vol = {pid: volatilite(D[(D.pcode == pid) & (D.Y <= O)]["g"].values) for pid in ids}
-        pal = np.array([palier(vol[pid]) for pid in ids])
-        train = D[(D.Y <= O)].dropna(subset=FULL + ["g"])
-        mh = fabriquer_modeles()["huber"][0]()
-        mh.fit(train[REC].values, train["g"].values)
-        pr_h = prevoir_recursif(mh, REC, E, EC, PDI, P611, ids, O, hmax, None)
-        pr_0 = prevoir_recursif(None, REC, E, EC, PDI, P611, ids, O, hmax, None)
+        comb, _ = previsions_combinees(D, E, EC, PDI, P611, ids, O, hmax)
         e0 = np.array([E.loc[pid, O] for pid in ids], float)
         for h in range(1, hmax + 1):
             obs = np.array([E.loc[pid, O + h] for pid in ids], float)
-            for nm, prev in (("demographique", pr_0[O + h]), ("huber_REC", pr_h[O + h]), ("constant", e0)):
-                for niv in ("stable", "variable", "tres_volatile"):
+            okm = (obs > 0) & (e0 > 0)
+            for nm in ("mixte", "par_palier", "huber_par_palier"):
+                enregistrer(nm, "REC" if nm != "par_palier" else "-", O, h, np.nan_to_num(comb[nm][h]), obs, okm)
+
+    # ---- fiabilite selon la stabilite passee de la province (volatilite de l'ecart a la demographie) ----
+    seg_rows, err_rows = [], []
+    for O in ORIGINES:
+        hmax = min(3, ANNEE_MAX - O)
+        comb, pal = previsions_combinees(D, E, EC, PDI, P611, ids, O, hmax)
+        e0 = np.array([E.loc[pid, O] for pid in ids], float)
+        for h in range(1, hmax + 1):
+            obs = np.array([E.loc[pid, O + h] for pid in ids], float)
+            okp = (obs > 0) & (e0 > 0)
+            for k in np.where(okp)[0]:      # erreur relative par province de la reference demographique (pour la fourchette)
+                err_rows.append({"pcode_province_old": ids[k], "palier": pal[k], "origine": O, "horizon": h,
+                                 "erreur_rel": float(comb["demographique"][h][k] / obs[k] - 1)})
+            for nm in ("demographique", "huber_REC", "constant", "mixte", "par_palier", "huber_par_palier"):
+                prev = comb[nm][h]
+                for niv in PALIERS:
                     mk = (pal == niv) & (obs > 0) & (e0 > 0) & np.isfinite(prev)
                     if mk.sum():
                         seg_rows.append({"methode": nm, "palier": niv, "origine": O, "horizon": h, "n_provinces": int(mk.sum()),
@@ -223,6 +276,15 @@ def main():
     SEG.to_csv(os.path.join(d_out, "modele_fiabilite_detail.csv"), sep=";", index=False, encoding="utf-8", float_format="%.4f")
     segs = SEG.groupby(["palier", "methode", "horizon"]).agg(wape=("wape", "mean"), n_provinces=("n_provinces", "mean")).reset_index()
     segs.to_csv(os.path.join(d_out, "modele_fiabilite_par_palier.csv"), sep=";", index=False, encoding="utf-8", float_format="%.4f")
+
+    # fourchette d'incertitude : erreurs relatives (prevision / observe - 1) de la reference demographique, par palier
+    ER = pd.DataFrame(err_rows)
+    ER.to_csv(os.path.join(d_out, "modele_erreurs_par_province.csv"), sep=";", index=False, encoding="utf-8", float_format="%.4f")
+    ER["abs"] = ER["erreur_rel"].abs()
+    inc = (ER.groupby(["palier", "horizon"]).agg(n_obs=("abs", "size"), erreur_mediane=("abs", "median"),
+                                                  erreur_p80=("abs", lambda x: x.quantile(0.80)),
+                                                  biais_median=("erreur_rel", "median")).reset_index())
+    inc.to_csv(os.path.join(d_out, "modele_incertitude_par_palier.csv"), sep=";", index=False, encoding="utf-8", float_format="%.4f")
 
     # paliers actuels des 45 provinces (donnees jusqu'a 2024-2025)
     prov_rows = []

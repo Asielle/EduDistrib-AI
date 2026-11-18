@@ -62,3 +62,8 @@ LIMITES A CITER
 
 
 
+
+
+----------------------------------------------------------------------
+AJOUT (mise a jour) : projection_2030_fourchette.csv donne, pour chaque province et scenario, une valeur basse et haute (eleves, salles, enseignants) selon le
+palier de stabilite de la province ; methode et limites dans LISEZ-MOI-modele.txt. controle_panel_vs_regions.csv : controle du panel par les totaux regionaux officiels.

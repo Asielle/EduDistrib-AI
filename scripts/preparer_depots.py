@@ -27,9 +27,11 @@ MARQUEUR = ".genere_par_preparer_depots"
 ANN = "01_collecte/data/01_Education_MENAPLN_DGESS/CNS_DGESS/Annuaires/"
 SCRIPTS = {
     "02-nettoyage": ["extract_tableau_I1.py", "extract_enseignants_IV1.py", "extract_salles_VI.py", "extract_equipement_V4.py",
-                     "extract_population_provinces.py", "extract_pdi_conasur.py", "extract_eleves_milieu.py", "harmoniser_provinces.py"],
-    "03-transformation": ["build_panel.py", "extract_ecoles_osm.py"],
-    "04-analyse": ["projection_2030.py", "optimisation_2030.py", "modele_predictif.py", "harmoniser_provinces.py"],
+                     "extract_population_provinces.py", "extract_pdi_conasur.py", "extract_eleves_milieu.py", "harmoniser_provinces.py",
+                     "esu_province.py"],
+    "03-transformation": ["build_panel.py", "extract_ecoles_osm.py", "controle_regions.py", "contexte_regional.py"],
+    "04-analyse": ["projection_2030.py", "optimisation_2030.py", "modele_predictif.py", "modele_cp1.py", "fourchette_projection.py",
+                   "harmoniser_provinces.py"],
     "05-interpretation": ["indice_tension.py", "build_dashboard.py", "build_fiche_decideur.py", "relancer_tout.py", "dashboard/calc.js", "dashboard/template.html"],
 }
 
@@ -50,6 +52,7 @@ FICHIERS = [
     ("01-collecte", "01_collecte/data/04_Cartographie_SIG/COD-AB_limites_administratives/bfa_admin_boundaries__bfa_admin2.csv", "limites-provinces-cod-ab-attributs", None),
     ("01-collecte", "01_collecte/04_Cartographie_SIG/geojson/bfa_admin2.geojson", "limites-provinces-cod-ab-contours", None),
     ("01-collecte", "01_collecte/data/04_Cartographie_SIG/Ecoles_OSM_HOTOSM/ecoles_osm_burkina.csv", "ecoles-osm-burkina", None),
+    ("01-collecte", "01_collecte/esu_transcription_manuelle/esu_primaire_mai_par_province.csv", "esu-primaire-mai-2023-2024-par-province-transcrit", None),
     ("02-nettoyage", "02_nettoyage/ref_provinces.csv", "table-reference-provinces-pcodes", None),
     ("02-nettoyage", "02_nettoyage/tableau_I1_propre.csv", "ecoles-salles-maitres-eleves-par-province-propres", None),
     ("02-nettoyage", "02_nettoyage/enseignants_IV1_propre.csv", "enseignants-par-province-et-milieu-propres", None),
@@ -58,7 +61,10 @@ FICHIERS = [
     ("02-nettoyage", "02_nettoyage/equipement_ecoles_propre.csv", "equipement-des-ecoles-eau-latrines-propre", None),
     ("02-nettoyage", "02_nettoyage/population_province_age.csv", "population-par-province-age-propre", None),
     ("02-nettoyage", "02_nettoyage/pdi_province_date.csv", "deplaces-internes-par-province-propres", None),
+    ("02-nettoyage", "02_nettoyage/esu_province_mai.csv", "esu-structures-rouvertes-delocalisees-par-province", None),
     ("03-transformation", "03_transformation/panel_province_annee.csv", "panel-province-annee", None),
+    ("03-transformation", "03_transformation/series_regionales_dgess.csv", "series-regionales-dgess-eleves-ecoles-cp1", None),
+    ("03-transformation", "03_transformation/contexte_region_annee.csv", "contexte-regional-taux-et-prescolaire", None),
     ("03-transformation", "03_transformation/dictionnaire_variables.csv", "dictionnaire-des-variables", None),
     ("03-transformation", "02_nettoyage/ecoles_osm_province.csv", "ecoles-osm-par-province-controle-de-couverture", None),
     ("03-transformation", "03_transformation/schema_donnees.md", "schema-des-donnees", None),
@@ -76,13 +82,19 @@ FICHIERS = [
     ("04-analyse", "04_analyse/modele_evaluation_detail.csv", "modele-evaluation-detail", None),
     ("04-analyse", "04_analyse/modele_fiabilite_par_palier.csv", "modele-fiabilite-par-palier", None),
     ("04-analyse", "04_analyse/modele_fiabilite_provinces.csv", "modele-fiabilite-par-province", None),
+    ("04-analyse", "04_analyse/modele_incertitude_par_palier.csv", "modele-incertitude-par-palier", None),
+    ("04-analyse", "04_analyse/modele_erreurs_par_province.csv", "modele-erreurs-par-province", None),
+    ("04-analyse", "04_analyse/modele_cp1_test.csv", "modele-test-nouveaux-inscrits-cp1", None),
+    ("04-analyse", "04_analyse/projection_2030_fourchette.csv", "projection-2030-fourchette-d-incertitude", None),
+    ("04-analyse", "04_analyse/controle_panel_vs_regions.csv", "controle-du-panel-par-les-totaux-regionaux", None),
     ("05-interpretation", "04_analyse/indice_tension_provinces_2024_2025.csv", "indice-de-tension-par-province", None),
     ("05-interpretation", "04_analyse/indice_tension_robustesse.csv", "indice-de-tension-robustesse", None),
     ("05-interpretation", "05_interpretation/tableau_de_bord_implantation.html", "tableau-de-bord-carte-et-plan-d-action", None),
     ("05-interpretation", "05_interpretation/fiche_decideur_une_page.pdf", "fiche-decideur-une-page", None),
 ]
 LISEZ_MOI = {   # etape -> [(fichier source, description)]
-    "01-collecte": [("06_depots_modeles/lisez-moi_01_collecte.txt", "lisez-moi")],
+    "01-collecte": [("06_depots_modeles/lisez-moi_01_collecte.txt", "lisez-moi"),
+                    ("01_collecte/esu_transcription_manuelle/LISEZ-MOI.txt", "lisez-moi-transcription-esu")],
     "02-nettoyage": [("02_nettoyage/LISEZ-MOI.txt", "lisez-moi-journal-de-nettoyage")],
     "03-transformation": [("03_transformation/LISEZ-MOI.txt", "lisez-moi")],
     "04-analyse": [("04_analyse/LISEZ-MOI.txt", "lisez-moi-projection"), ("04_analyse/LISEZ-MOI-optimisation.txt", "lisez-moi-optimisation"),
@@ -96,6 +108,7 @@ SOURCES = [  # (fichier de collecte, producteur, publication, annee, lien)
     ("projections-demographiques-2020-2035-insd", "INSD", "RGPH 2019, volume 4 : Projection demographique 2020-2035 (chapitre 3, projections provinciales)", "2020-2035", "https://www.insd.bf"),
     ("deplaces-internes-conasur-2019-2023", "SP/CONASUR (via HDX)", "Situation des personnes deplacees internes par commune (fichier idps4)", "2019-2023", "https://data.humdata.org/dataset/situation-des-personnes-deplacees-internes"),
     ("limites-provinces-cod-ab-attributs et contours", "IGB / OCHA (via HDX)", "Limites administratives COD-AB du Burkina Faso (provinces, P-codes)", "2025-2026", "https://data.humdata.org/dataset/cod-ab-bfa"),
+    ("esu-primaire-mai-2023-2024-par-province-transcrit", "ST-ESU, ministere de l'Education nationale (MENAPLN)", "Rapports statistiques mensuels de l'Education en Situation d'Urgence, mai 2023 et mai 2024 (PDF scannes du Data Pack, transcrits a la main)", "2023-2024", "Data Pack challenge, dossier 01_Education_MENAPLN_DGESS/ESU_Rapports_mensuels"),
     ("ecoles-osm-burkina", "HOT / OpenStreetMap (via HDX)", "Etablissements scolaires geolocalises du Burkina Faso (utilise pour controler la couverture, pas comme source principale)", "2026", "https://data.humdata.org/dataset/hotosm_bfa_education_facilities"),
 ]
 

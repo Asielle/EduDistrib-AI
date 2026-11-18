@@ -508,6 +508,14 @@ function renderDetail() {
   const meters = COMP.map(([k, lab, w]) => h("div", { class: "meter" },
     h("span", { text: lab + " (" + w + " %)" }), h("span", { class: "tr" }, h("i", { style: "width:" + p.sc[k] + "%" })), h("span", { class: "sc", text: Math.round(p.sc[k]) })));
   const fact = (v, l) => h("div", {}, h("b", { text: v }), l);
+  // fourchette indicative : marge = erreur réelle (80 % des cas, 3 ans) de la prévision démographique pour le palier de stabilité de la province
+  const palP = DATA.fiab.prov[p.id].p, marge = DATA.fiab.marge[palP], bd = bande(p, state.sc, state.normS, state.normE, marge, HORIZON);
+  const plage = (lo, hi) => fmt(lo) + " à " + fmt(hi);
+  const palLab = DATA.fiab.paliers.find(r => r.palier === palP).label.toLowerCase();
+  const bandeBloc = h("div", {},
+    h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin:10px 0 4px", text: "Fourchette indicative : ± " + pct(marge) + " sur les élèves (province " + palLab + ")" }),
+    h("div", { class: "facts" }, fact(plage(bd.bas.eleves, bd.haut.eleves), "élèves projetés"), fact(plage(bd.bas.salles, bd.haut.salles), "salles à construire"), fact(plage(bd.bas.ens, bd.haut.ens), "enseignants à recruter")),
+    h("p", { class: "ex", text: "Marge = erreur réelle de la prévision démographique à 3 ans, observée pour 80 % des cas de ce palier de provinces. 2030 est plus loin que ce test : lisez-la comme un minimum, pas comme un intervalle de confiance." }));
   box.replaceChildren(
     h("div", { class: "det-h" }, h("h2", { text: p.nom }), h("span", { class: "chip", text: "Rang " + p.rang + " sur 45 · " + niveauTxt[p.niveau] })),
     h("p", { class: "note", text: "Ancienne région : " + p.region.charAt(0) + p.region.slice(1).toLowerCase() + " · nouvelle région : " + p.regionNew + (p.nouveaux.length > 1 ? " · scindée en " + p.nouveaux.length + " provinces dans le nouveau découpage" : "") }),
@@ -524,7 +532,8 @@ function renderDetail() {
     h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin-bottom:4px", text: "Horizon 2030-2031 · " + SCENARIOS[state.sc].label + " · " + state.normS + " élèves par salle, " + state.normE + " par enseignant" }),
     h("div", { class: "facts" },
       fact(fmt(b.eleves), "élèves projetés (" + fmt(p.eleves24) + " en 2024-2025)"), fact(fmt(b.salles), "salles à construire (" + fmt(b.sallesRempl) + " en remplaçant les salles précaires)"),
-      fact(fmt(b.ens), "enseignants à recruter"), fact(fmt(p.pop[6]), "enfants de 6 à 11 ans (projection INSD)")));
+      fact(fmt(b.ens), "enseignants à recruter"), fact(fmt(p.pop[6]), "enfants de 6 à 11 ans (projection INSD)")),
+    bandeBloc);
 }
 
 // ---------- nuage : tension × volume ----------
@@ -645,6 +654,7 @@ function renderFiab() {
       h("div", {}, h("div", { class: "lab", style: "font-size:12px;color:var(--muted);margin-bottom:4px", text: "Fiabilité de la projection selon la stabilité passée de la province (hypothèse démographique)" }),
         h("table", { class: "cmp" }, h("thead", {}, h("tr", {}, ...["Province", "Nombre", "Erreur à 1 an", "Erreur à 3 ans"].map(t => h("th", { scope: "col", text: t })))), h("tbody", {}, ...pal)),
         h("p", { class: "ex", text: "Très volatiles : " + tv.liste.join(", ") + ". Palier = écart-type de la croissance des effectifs hors démographie : moins de 0,10 stable, 0,10 à 0,30 variable, plus de 0,30 très volatile." }))),
+    h("p", { class: "note", text: "Fourchette de la projection 2030. Nous en tirons une marge pour chaque province, d'après l'erreur réelle de la prévision démographique à 3 ans (observée dans 80 % des cas) : ± " + pct(F.marge.stable) + " pour une province stable, ± " + pct(F.marge.variable) + " pour une province variable, ± " + pct(F.marge.tres_volatile) + " pour une province très volatile. Elle s'affiche dans le détail de chaque province. C'est un minimum : 2030 est à 6 ans de 2024 et le test ne dépasse pas 3 ans. Les marges ne se somment pas en une fourchette nationale." }),
     h("p", { class: "ex", text: "Limites du test : 45 provinces et 6 ans au plus, dont une crise (2021-2023) qui change le régime. Les modèles apprennent un passé qui ne ressemble pas à la reprise de 2023-2024 (effectifs nationaux +8 % par an). Erreur = somme des écarts absolus ÷ effectifs observés." }));
 }
 

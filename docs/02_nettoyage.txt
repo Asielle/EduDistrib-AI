@@ -92,3 +92,15 @@ Points d'attention
 
 
 
+
+
+----------------------------------------------------------------------
+AJOUT (mise a jour) - Rapports ESU : structures rouvertes et delocalisees, primaire, par province
+Fichier : esu_province_mai.csv (45 provinces ; mai 2023 et mai 2024 ; structures et eleves concernes, par type).
+Source : rapports statistiques mensuels de l'Education en Situation d'Urgence (ST-ESU / MENAPLN), PDF scannes du Data Pack. L'OCR du pack est trop
+degrade pour etre utilise : les tableaux ont ete lus a l'image et saisis a la main (01_collecte/esu_transcription_manuelle/, avec son LISEZ-MOI).
+Controle (scripts/esu_province.py) : la somme des provinces recoupe les totaux regionaux imprimes. Deux totaux NATIONAUX imprimes dans le rapport de mai 2024
+sont inexacts dans le document source (rouverts : 221 706 eleves imprimes pour 221 648 en additionnant les regions ; delocalises : 317 structures et
+46 331 eleves imprimes pour 318 et 46 411). Nous gardons la somme des provinces et signalons l'ecart.
+Une province absente d'un tableau = 0 structure. Mai 2025 n'est pas saisi : ses tableaux sont par region, pas par province.
+Ce ne sont pas des effectifs : ce sont les structures/eleves concernes par une reouverture ou une delocalisation (indicateur de la crise, pas une mesure de scolarisation).

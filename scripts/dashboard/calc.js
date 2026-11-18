@@ -31,6 +31,16 @@ function besoins(p, sc, normeSalle, normeEns, t) {
     sallesRempl: Math.max(0, sallesNec - (p.salles - p.precaires)),
   };
 }
+// Fourchette d'incertitude (marge relative selon le palier de stabilite de la province) : memes regles que scripts/fourchette_projection.py.
+// On fait varier les eleves projetes de -marge a +marge, puis on recalcule les besoins a construire / recruter a chaque borne.
+function bande(p, sc, normeSalle, normeEns, marge, t) {
+  const e = elevesAt(p, sc, t || HORIZON);
+  const borne = k => {
+    const x = Math.floor(e * (1 + k * marge) + 0.5);
+    return { eleves: x, salles: Math.max(0, Math.ceil(x / normeSalle) - p.salles), ens: Math.max(0, Math.ceil(x / normeEns) - p.ens) };
+  };
+  return { bas: borne(-1), haut: borne(1) };
+}
 function totalNational(provinces, sc, normeSalle, normeEns, t) {
   const r = { eleves: 0, salles: 0, ens: 0, sallesRempl: 0 };
   for (const p of provinces) {
@@ -108,4 +118,4 @@ function classeDe(valeur, bornes) {
   for (const b of bornes) if (valeur >= b) c++;
   return c;
 }
-if (typeof module !== "undefined") module.exports = { besoins, totalNational, elevesAt, tbsAt, bornesQuantiles, classeDe, SCENARIOS, allouer, metriquesAlloc, budgetTotal };
+if (typeof module !== "undefined") module.exports = { besoins, bande, totalNational, elevesAt, tbsAt, bornesQuantiles, classeDe, SCENARIOS, allouer, metriquesAlloc, budgetTotal };

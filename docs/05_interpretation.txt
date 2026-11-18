@@ -39,3 +39,11 @@ Relancer toute la chaine (etapes 02 a 05) :
   python scripts/relancer_tout.py <dossier du projet>   (environ 35 secondes ; relancer_tout.py est dans le zip de code de cette etape ;
   placer les scripts des zips 02 a 05 dans un meme dossier scripts/, avec le sous-dossier dashboard/). Teste sur une copie propre : fichiers identiques.
 
+
+----------------------------------------------------------------------
+AJOUT (mise a jour) - Fourchette d'incertitude dans le tableau de bord
+Le detail d'une province affiche, sous l'horizon 2030-2031, une fourchette indicative (eleves projetes, salles a construire, enseignants a recruter) :
+marge relative selon le palier de stabilite de la province (stable +/-10 %, variable +/-37 %, tres volatile +/-74 %), tirees de l'erreur reelle (percentile 80,
+horizon 3 ans) de la prevision demographique. La section 'Un modele statistique ferait-il mieux ?' rappelle ces marges. Le calcul est dans scripts/dashboard/calc.js (bande) ;
+build_dashboard.py verifie que la page reproduit exactement projection_2030_fourchette.csv (135 cas, 0 ecart). La fourchette n'est pas appliquee aux totaux nationaux ni a la courbe nationale
+(les marges provinciales ne se somment pas). C'est un minimum : 2030 est plus loin que le test (3 ans).
